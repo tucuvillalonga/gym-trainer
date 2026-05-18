@@ -1,0 +1,464 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+
+  background: #0b1120;
+  color: #f3f4f6;
+}
+
+button {
+  cursor: pointer;
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar {
+  width: 280px;
+
+  background: #0f172a;
+
+  border-right: 1px solid #1e293b;
+
+  padding: 32px 24px;
+
+  position: sticky;
+  top: 0;
+
+  height: 100vh;
+}
+
+.logo {
+  font-size: 34px;
+  font-weight: 800;
+
+  margin-bottom: 32px;
+
+  color: white;
+}
+
+/* CONTENIDO */
+
+.contenido {
+  flex: 1;
+
+  padding: 40px;
+}
+
+/* BUSCADOR */
+
+.buscador {
+  margin-bottom: 18px;
+}
+
+.buscador input {
+  width: 100%;
+
+  padding: 16px 18px;
+
+  border-radius: 18px;
+
+  border: 1px solid #1e293b;
+
+  background: #111827;
+
+  color: #f9fafb;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.buscador input::placeholder {
+  color: #94a3b8;
+}
+
+.buscador input:focus {
+  border-color: #2563eb;
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* SIDEBAR BUTTONS */
+
+.sidebar-grupos {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.sidebar-grupos button {
+  border: 1px solid #1e293b;
+
+  background: #111827;
+
+  color: #f3f4f6;
+
+  padding: 14px 18px;
+
+  border-radius: 16px;
+
+  text-align: left;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sidebar-grupos button:hover {
+  background: #1d4ed8;
+
+  border-color: #2563eb;
+
+  transform: translateX(4px);
+}
+
+.sidebar-grupos button.activo {
+  background: #2563eb;
+
+  border-color: #3b82f6;
+}
+
+/* GRUPOS */
+
+.grupo-ejercicios {
+  margin-bottom: 52px;
+}
+
+.grupo-ejercicios h2 {
+  font-size: 42px;
+
+  margin-bottom: 24px;
+
+  color: white;
+}
+
+/* GRID */
+
+.grilla-ejercicios {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
+  gap: 24px;
+}
+
+/* TARJETAS */
+
+.tarjeta-ejercicio {
+  background: #111827;
+
+  border: 1px solid #1e293b;
+
+  border-radius: 28px;
+
+  padding: 24px;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.tarjeta-ejercicio:hover {
+  transform: translateY(-6px);
+
+  border-color: #2563eb;
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+.tarjeta-ejercicio h2 {
+  margin-top: 18px;
+  margin-bottom: 12px;
+
+  font-size: 36px;
+
+  color: white;
+}
+
+.descripcion {
+  color: #94a3b8;
+
+  line-height: 1.7;
+
+  margin-bottom: 28px;
+}
+
+.fila-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding-top: 18px;
+
+  border-top: 1px solid #1e293b;
+}
+
+/* TAG */
+
+.tag {
+  display: inline-flex;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  background: rgba(37, 99, 235, 0.12);
+
+  color: #60a5fa;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* DETALLE */
+
+.detalle {
+  margin-top: 20px;
+}
+
+.detalle-header {
+  margin-bottom: 24px;
+}
+
+.detalle-header h2 {
+  font-size: 52px;
+
+  margin: 18px 0 12px;
+
+  color: white;
+}
+
+.detalle-header p {
+  color: #94a3b8;
+
+  font-size: 18px;
+
+  line-height: 1.7;
+}
+
+/* PANELS */
+
+.detalle-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 24px;
+
+  margin-top: 24px;
+}
+
+.panel {
+  background: #111827;
+
+  border: 1px solid #1e293b;
+
+  border-radius: 28px;
+
+  padding: 24px;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+/* VIDEO */
+
+.video-wrapper {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 9;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  background: black;
+}
+
+.video-wrapper iframe {
+  width: 100%;
+  height: 100%;
+
+  border: 0;
+}
+
+/* LISTAS */
+
+.lista-check,
+.lista-error {
+  padding-left: 20px;
+
+  line-height: 1.9;
+}
+
+.lista-check li::marker {
+  color: #22c55e;
+}
+
+.lista-error li::marker {
+  color: #ef4444;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+
+    height: auto;
+
+    position: relative;
+  }
+
+  .contenido {
+    padding: 22px;
+  }
+
+  .detalle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grupo-ejercicios h2 {
+    font-size: 32px;
+  }
+
+  .tarjeta-ejercicio h2 {
+    font-size: 28px;
+  }
+
+  .detalle-header h2 {
+    font-size: 38px;
+  }
+}
+
+.boton-volver {
+  border: 1px solid #1e293b;
+  background: #111827;
+  color: #f9fafb;
+
+  padding: 12px 18px;
+  border-radius: 14px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.boton-volver:hover {
+  background: #2563eb;
+  border-color: #3b82f6;
+  transform: translateX(-3px);
+}
+
+.imagen-ejercicio {
+  width: 100%;
+  height: 190px;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  margin-bottom: 18px;
+
+  background: #0f172a;
+}
+
+.tarjeta-horizontal {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 22px;
+  align-items: stretch;
+}
+
+.tarjeta-contenido {
+  min-width: 0;
+}
+
+.imagen-ejercicio-lateral {
+  width: 220px;
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+}
+
+.imagen-ejercicio-lateral img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 700px) {
+  .tarjeta-horizontal {
+    grid-template-columns: 1fr;
+  }
+
+  .imagen-ejercicio-lateral {
+    width: 100%;
+    height: 220px;
+  }
+}
+
+.tarjeta-ejercicio:hover .imagen-ejercicio img {
+  transform: scale(1.05);
+
+  opacity: 0.92;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grupo-ejercicios,
+.detalle,
+.tarjeta-ejercicio {
+  animation: aparecer 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.sidebar {
+  animation: aparecer 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
