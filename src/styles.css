@@ -577,15 +577,192 @@ button {
 }
 
 .contador-grupo {
+  margin-left: auto;
   opacity: 0.45;
   font-size: 12px;
   font-weight: 400;
 }
 
 .contador-titulo {
-  margin-left: 10px;
-  font-size: 16px;
+  margin-left: 12px;
+  font-size: 18px;
   font-weight: 400;
   color: rgba(96, 165, 250, 0.65);
 }
 
+.rutinas-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rutinas-acciones button {
+  border: 1px solid #1e293b;
+  background: #2563eb;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.crear-rutina {
+  display: flex;
+  gap: 12px;
+
+  margin-top: 20px;
+}
+
+.crear-rutina input {
+  flex: 1;
+
+  padding: 12px;
+
+  border-radius: 12px;
+
+  border: 1px solid #1e293b;
+
+  background: #0f172a;
+
+  color: white;
+}
+
+.rutinas-grid {
+  display: grid;
+
+  gap: 16px;
+
+  margin-top: 30px;
+}
+
+.rutina-botones {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 16px;
+}
+
+.armar-rutina {
+  margin-top: 32px;
+
+  max-height: 700px;
+
+  overflow-y: auto;
+}
+
+.lista-agregar-ejercicios {
+  display: grid;
+
+  gap: 10px;
+
+  margin-top: 20px;
+}
+
+.fila-ejercicio-rutina {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  padding: 14px;
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.fila-ejercicio-rutina button {
+  padding: 10px 16px;
+
+  border-radius: 10px;
+
+  background: #2563eb;
+
+  color: white;
+
+  border: 0;
+}
+
+.rutina-detalle-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 24px;
+}
+
+.rutina-card-clickeable {
+  cursor: pointer;
+}
+
+.rutina-ejercicio-card {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.03);
+  margin-top: 14px;
+}
+
+.rutina-ejercicio-card img,
+.fila-ejercicio-info img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.rutina-campos {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.rutina-campos label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.rutina-campos input,
+.rutina-campos select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+  color: white;
+}
+
+.fila-ejercicio-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fila-ejercicio-info img {
+  width: 54px;
+}
+
+.boton-secundario {
+  border: 1px solid #334155;
+  background: transparent;
+  color: #cbd5e1;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+@media (max-width: 900px) {
+  .rutina-detalle-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rutina-ejercicio-card {
+    grid-template-columns: 1fr;
+  }
+
+  .rutina-campos {
+    grid-template-columns: 1fr 1fr;
+  }
+}

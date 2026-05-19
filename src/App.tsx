@@ -3,13 +3,19 @@ import { ejercicios } from "./data/ejercicios";
 import type { Ejercicio } from "./types/ejercicio";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
 import DetalleEjercicio from "./components/DetalleEjercicio";
+import MisRutinas from "./components/MisRutinas";
 
 function App() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] =
     useState<Ejercicio | null>(null);
 
   const [busqueda, setBusqueda] = useState("");
-  const [grupoSeleccionado, setGrupoSeleccionado] = useState<string | null>(null);
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState<string | null>(
+    null
+  );
+  const [pantalla, setPantalla] = useState<"ejercicios" | "rutinas">(
+    "ejercicios"
+  );
 
   const ejerciciosFiltrados = ejercicios.filter((ejercicio) => {
     const coincideBusqueda =
@@ -65,12 +71,38 @@ function App() {
     {}
   );
 
+  function irAEjercicios() {
+    setPantalla("ejercicios");
+    setEjercicioSeleccionado(null);
+  }
+
+  function irARutinas() {
+    setPantalla("rutinas");
+    setEjercicioSeleccionado(null);
+  }
+
   return (
     <div className="layout">
       <aside className="sidebar">
         <h1 className="logo">Gym Trainer</h1>
 
-        {!ejercicioSeleccionado && (
+        <nav className="sidebar-grupos">
+          <button
+            onClick={irAEjercicios}
+            className={pantalla === "ejercicios" ? "activo" : ""}
+          >
+            Ejercicios
+          </button>
+
+          <button
+            onClick={irARutinas}
+            className={pantalla === "rutinas" ? "activo" : ""}
+          >
+            Mis rutinas
+          </button>
+        </nav>
+
+        {pantalla === "ejercicios" && !ejercicioSeleccionado && (
           <>
             <div className="buscador">
               <input
@@ -108,7 +140,9 @@ function App() {
       </aside>
 
       <main className="contenido">
-        {!ejercicioSeleccionado ? (
+        {pantalla === "rutinas" ? (
+          <MisRutinas />
+        ) : !ejercicioSeleccionado ? (
           <div className="grupos-ejercicios">
             {gruposOrdenados.map(([grupo, ejerciciosDelGrupo]) => (
               <section key={grupo} className="grupo-ejercicios">
@@ -135,10 +169,7 @@ function App() {
           </div>
         ) : (
           <div style={{ marginTop: "30px" }}>
-            <button
-              className="boton-volver"
-              onClick={() => setEjercicioSeleccionado(null)}
-            >
+            <button className="boton-volver" onClick={irAEjercicios}>
               ← Volver a ejercicios
             </button>
 

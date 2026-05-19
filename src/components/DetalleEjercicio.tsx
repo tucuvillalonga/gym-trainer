@@ -6,14 +6,13 @@ type Props = {
 };
 
 function DetalleEjercicio({ ejercicio }: Props) {
+
   return (
     <section className="detalle">
       <div className="detalle-header">
         <div>
           <span className="tag">{ejercicio.grupoMuscular}</span>
-
           <h2>{ejercicio.nombre}</h2>
-
           <p>{ejercicio.descripcion}</p>
         </div>
       </div>

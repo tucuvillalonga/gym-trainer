@@ -2,307 +2,20 @@ import type { Ejercicio } from "../types/ejercicio";
 import ejerciciosImportados from "./importados/ejercicios-simplyfitness.json";
 
 function clasificarEjercicio(nombre: string, url: string, id: string) {
-  const texto = `${nombre} ${url}`.toLowerCase();
+  const texto = `${nombre} ${url} ${id}`.toLowerCase();
 
-    if (id === "elevacion-de-piernas") {
-    return {
-        grupoMuscular: "Core",
-        musculoPrincipal: "abdominales" as const,
 
-        mapaDeEnfoque: [
-        {
-            region: "abdominales" as const,
-            nivel: "principal" as const,
-        },
-        {
-            region: "oblicuos" as const,
-            nivel: "secundario" as const,
-        },
-        ],
-    };
-    }
-
-// Press francés → Triceps
-if (
-  texto.includes("press frances") ||
-  texto.includes("press francés") ||
-  texto.includes("french press")
-) {
-  return {
-    grupoMuscular: "Triceps",
-
-    musculoPrincipal: "triceps" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "triceps" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "deltoides" as const,
-        nivel: "indirecto" as const,
-      },
-    ],
-  };
-}
-
-// Elevaciones de rodilla → Core
-if (
-  texto.includes("elevaciones de rodilla") ||
-  texto.includes("elevacion de rodilla") ||
-  texto.includes("elevación de rodilla") ||
-  texto.includes("knee raise")
-) {
-  return {
+  
+  const core = () => ({
     grupoMuscular: "Core",
-
     musculoPrincipal: "abdominales" as const,
-
     mapaDeEnfoque: [
-      {
-        region: "abdominales" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "oblicuos" as const,
-        nivel: "secundario" as const,
-      },
+      { region: "abdominales" as const, nivel: "principal" as const },
+      { region: "oblicuos" as const, nivel: "secundario" as const },
     ],
-  };
-}
+  });
 
-// Remo alto → Hombros
-if (
-  texto.includes("upright row") ||
-  texto.includes("remo alto")
-) {
-  return {
-    grupoMuscular: "Hombros",
-
-    musculoPrincipal: "deltoides" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "deltoides" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "trapecios" as const,
-        nivel: "secundario" as const,
-      },
-
-      {
-        region: "biceps" as const,
-        nivel: "indirecto" as const,
-      },
-    ],
-  };
-}
-  // REGLAS ESPECIALES (prioridad alta)
-
-// Elevacion de piernas → Core
-if (
-  (
-    texto.includes("leg raise") ||
-    texto.includes("leg raises") ||
-    texto.includes("elevacion de piernas") ||
-    texto.includes("elevaciones de piernas") ||
-    texto.includes("hanging leg") ||
-    texto.includes("knee raise") ||
-    texto.includes("knee raises")
-  ) &&
-
-  !texto.includes("press") &&
-  !texto.includes("curl")
-) {
-  return {
-    grupoMuscular: "Core",
-
-    musculoPrincipal: "abdominales" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "abdominales" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "oblicuos" as const,
-        nivel: "secundario" as const,
-      },
-    ],
-  };
-}
-
-// Fondos en banco → Triceps
-if (
-  texto.includes("bench dip") ||
-  texto.includes("fondos en banco")
-) {
-  return {
-    grupoMuscular: "Triceps",
-
-    musculoPrincipal: "triceps" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "triceps" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "pectoral" as const,
-        nivel: "secundario" as const,
-      },
-
-      {
-        region: "deltoides" as const,
-        nivel: "indirecto" as const,
-      },
-    ],
-  };
-}
-
-// Cruces inversos → Hombros
-if (
-  texto.includes("reverse fly") ||
-  texto.includes("rear delt") ||
-  texto.includes("cruces inversos")
-) {
-  return {
-    grupoMuscular: "Hombros",
-
-    musculoPrincipal: "deltoides" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "deltoides" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "trapecios" as const,
-        nivel: "secundario" as const,
-      },
-
-      {
-        region: "dorsales" as const,
-        nivel: "indirecto" as const,
-      },
-    ],
-  };
-}
-
-  // CORE (primero para que tenga prioridad)
-  if (
-    texto.includes("abdominal") ||
-    texto.includes("abs") ||
-    texto.includes("crunch") ||
-    texto.includes("plank") ||
-    texto.includes("knee raise") ||
-    texto.includes("leg raise") ||
-    texto.includes("sit-up") ||
-    texto.includes("cable crunch") ||
-    texto.includes("rope crunch") ||
-    texto.includes("hanging leg") ||
-    texto.includes("mountain climber") ||
-    texto.includes("toe touch")
-  ) {
-    return {
-      grupoMuscular: "Core",
-      musculoPrincipal: "abdominales" as const,
-
-      mapaDeEnfoque: [
-        {
-          region: "abdominales" as const,
-          nivel: "principal" as const,
-        },
-
-        {
-          region: "oblicuos" as const,
-          nivel: "secundario" as const,
-        },
-      ],
-    };
-  }
-// Hombros (casos faltantes)
-if (
-  texto.includes("lateral raise") ||
-  texto.includes("front raise") ||
-  texto.includes("elevacion lateral") ||
-  texto.includes("elevaciones frontales") ||
-  texto.includes("elevacion frontal") ||
-  texto.includes("posterior shoulder") ||
-  texto.includes("reverse pec deck") ||
-  texto.includes("pajaro") ||
-  texto.includes("rear delt") ||
-  texto.includes("press militar") ||
-  texto.includes("military press") ||
-  texto.includes("shoulder press")
-) {
-  return {
-    grupoMuscular: "Hombros",
-
-    musculoPrincipal: "deltoides" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "deltoides" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "trapecios" as const,
-        nivel: "secundario" as const,
-      },
-
-      {
-        region: "triceps" as const,
-        nivel: "secundario" as const,
-      },
-    ],
-  };
-}
-
-// Press banca maquina → Pecho
-if (
-  texto.includes("chest press") ||
-  texto.includes("press de banca en maquina") ||
-  texto.includes("machine bench press")
-) {
-  return {
-    grupoMuscular: "Pecho",
-
-    musculoPrincipal: "pectoral" as const,
-
-    mapaDeEnfoque: [
-      {
-        region: "pectoral" as const,
-        nivel: "principal" as const,
-      },
-
-      {
-        region: "triceps" as const,
-        nivel: "secundario" as const,
-      },
-
-      {
-        region: "deltoides" as const,
-        nivel: "secundario" as const,
-      },
-    ],
-  };
-}
-
-// Press de banca en máquina sentado → Pecho
-if (
-  texto.includes("press de banca en maquina") ||
-  texto.includes("press de banca en máquina")
-) {
-  return {
+  const pecho = () => ({
     grupoMuscular: "Pecho",
     musculoPrincipal: "pectoral" as const,
     mapaDeEnfoque: [
@@ -310,22 +23,19 @@ if (
       { region: "triceps" as const, nivel: "secundario" as const },
       { region: "deltoides" as const, nivel: "secundario" as const },
     ],
-  };
-}
+  });
 
-// Elevaciones laterales/frontales/posteriores → Hombros
-if (
-  texto.includes("elevacion lateral") ||
-  texto.includes("elevación lateral") ||
-  texto.includes("elevaciones laterales") ||
-  texto.includes("elevacion frontal") ||
-  texto.includes("elevación frontal") ||
-  texto.includes("elevaciones frontales") ||
-  texto.includes("elevaciones posteriores para hombros") ||
-  texto.includes("pajaro") ||
-  texto.includes("pájaro")
-) {
-  return {
+  const espalda = () => ({
+    grupoMuscular: "Espalda",
+    musculoPrincipal: "dorsales" as const,
+    mapaDeEnfoque: [
+      { region: "dorsales" as const, nivel: "principal" as const },
+      { region: "biceps" as const, nivel: "secundario" as const },
+      { region: "trapecios" as const, nivel: "secundario" as const },
+    ],
+  });
+
+  const hombros = () => ({
     grupoMuscular: "Hombros",
     musculoPrincipal: "deltoides" as const,
     mapaDeEnfoque: [
@@ -333,168 +43,233 @@ if (
       { region: "trapecios" as const, nivel: "secundario" as const },
       { region: "triceps" as const, nivel: "indirecto" as const },
     ],
+  });
+
+  const biceps = () => ({
+    grupoMuscular: "Biceps",
+    musculoPrincipal: "biceps" as const,
+    mapaDeEnfoque: [
+      { region: "biceps" as const, nivel: "principal" as const },
+    ],
+  });
+
+  const triceps = () => ({
+    grupoMuscular: "Triceps",
+    musculoPrincipal: "triceps" as const,
+    mapaDeEnfoque: [
+      { region: "triceps" as const, nivel: "principal" as const },
+      { region: "pectoral" as const, nivel: "secundario" as const },
+    ],
+  });
+
+  const piernas = () => ({
+    grupoMuscular: "Piernas",
+    musculoPrincipal: "cuadriceps" as const,
+    mapaDeEnfoque: [
+      { region: "cuadriceps" as const, nivel: "principal" as const },
+      { region: "gluteos" as const, nivel: "secundario" as const },
+      { region: "isquiotibiales" as const, nivel: "secundario" as const },
+    ],
+  });
+
+// AJUSTES MANUALES FINOS
+
+if (
+  texto.includes("curl de muñeca") ||
+  texto.includes("wrist curl") ||
+  texto.includes("extension de muñeca") ||
+  texto.includes("extensión de muñeca")
+) {
+  return {
+    grupoMuscular: "Otros",
+    musculoPrincipal: "abdominales" as const,
+    mapaDeEnfoque: [],
   };
 }
 
-  // PECHO
+if (
+  texto.includes("salto rodillas al pecho")
+) {
+  return piernas();
+}
+
+if (
+  texto.includes("burpees") ||
+  texto.includes("los groiners")
+) {
+  return {
+    grupoMuscular: "Otros",
+    musculoPrincipal: "abdominales" as const,
+    mapaDeEnfoque: [],
+  };
+}
+
+if (
+  texto.includes("pullover con barra") ||
+  texto.includes("pullover con mancuerna")
+) {
+  return espalda();
+}
+
+if (
+  texto.includes("contragolpe con cable")
+) {
+  return piernas();
+}
+
+if (
+  texto.includes("press de hombro con mancuerna") ||
+  texto.includes("press de hombros en maquina smith") ||
+  texto.includes("press de hombros en máquina smith") ||
+  texto.includes("press tras nuca sentado")
+) {
+  return hombros();
+}
+
+if (
+  texto.includes("fondos en barras paralelas")
+) {
+  return triceps();
+}
+
+if (
+  texto.includes("buenos dias") ||
+  texto.includes("buenos días") ||
+  texto.includes("elevaciones en posicion de rana") ||
+  texto.includes("elevaciones en posición de rana") ||
+  texto.includes("elevaciones cortas en posicion de rana") ||
+  texto.includes("elevaciones cortas en posición de rana")
+) {
+  return piernas();
+}
+
   if (
+    texto.includes("elevacion-de-piernas") ||
+    texto.includes("elevacion de piernas") ||
+    texto.includes("elevaciones de piernas") ||
+    texto.includes("leg raise") ||
+    texto.includes("hanging leg") ||
+    texto.includes("elevaciones de rodilla") ||
+    texto.includes("knee raise") ||
+    texto.includes("abdominal") ||
+    texto.includes("abs") ||
+    texto.includes("crunch") ||
+    texto.includes("plank") ||
+    texto.includes("sit-up") ||
+    texto.includes("mountain climber") ||
+    texto.includes("burpees") ||
+    texto.includes("salto rodillas al pecho") ||
+    texto.includes("los groiners")
+  ) {
+    return core();
+  }
+
+  if (
+    texto.includes("press frances") ||
+    texto.includes("press francés") ||
+    texto.includes("french press") ||
+    texto.includes("fondos en banco") ||
+    texto.includes("bench dip") ||
+    texto.includes("pushdown") ||
+    texto.includes("extension de triceps") ||
+    texto.includes("extensión de tríceps") ||
+    texto.includes("patadas traseras") ||
+    texto.includes("kickback") ||
+    texto.includes("contragolpe con cable") ||
+    texto.includes("tricep") ||
+    texto.includes("triceps") ||
+    texto.includes("skull")
+  ) {
+    return triceps();
+  }
+
+  if (
+    texto.includes("remo alto") ||
+    texto.includes("upright row") ||
+    texto.includes("reverse fly") ||
+    texto.includes("rear delt") ||
+    texto.includes("cruces inversos") ||
+    texto.includes("lateral raise") ||
+    texto.includes("front raise") ||
+    texto.includes("elevacion lateral") ||
+    texto.includes("elevación lateral") ||
+    texto.includes("elevaciones laterales") ||
+    texto.includes("elevacion frontal") ||
+    texto.includes("elevación frontal") ||
+    texto.includes("elevaciones frontales") ||
+    texto.includes("elevaciones posteriores") ||
+    texto.includes("pajaro") ||
+    texto.includes("pájaro") ||
+    texto.includes("press militar") ||
+    texto.includes("military press") ||
+    texto.includes("shoulder press")
+  ) {
+    return hombros();
+  }
+
+  if (
+    texto.includes("chest press") ||
+    texto.includes("press de banca") ||
     texto.includes("bench") ||
     texto.includes("fly") ||
-    texto.includes("push-up")
+    texto.includes("cruce de poleas") ||
+    texto.includes("cable crossover") ||
+    texto.includes("peck deck") ||
+    texto.includes("aperturas en maquina") ||
+    texto.includes("aperturas en máquina") ||
+    texto.includes("push-up") ||
+    texto.includes("pullover")
   ) {
-    return {
-      grupoMuscular: "Pecho",
-      musculoPrincipal: "pectoral" as const,
-
-      mapaDeEnfoque: [
-        { region: "pectoral" as const, nivel: "principal" as const },
-        { region: "triceps" as const, nivel: "secundario" as const },
-        { region: "deltoides" as const, nivel: "secundario" as const },
-      ],
-    };
+    return pecho();
   }
 
-  // ESPALDA
   if (
     texto.includes("row") ||
+    texto.includes("remo") ||
     texto.includes("pulldown") ||
-    texto.includes("pull-up")
+    texto.includes("pull-up") ||
+    texto.includes("pullup")
   ) {
-    return {
-      grupoMuscular: "Espalda",
-      musculoPrincipal: "dorsales" as const,
-
-      mapaDeEnfoque: [
-        { region: "dorsales" as const, nivel: "principal" as const },
-        { region: "biceps" as const, nivel: "secundario" as const },
-        { region: "trapecios" as const, nivel: "secundario" as const },
-      ],
-    };
+    return espalda();
   }
 
-  // HOMBROS
   if (
-    (
-      texto.includes("shoulder") ||
-      texto.includes("lateral raise") ||
-      texto.includes("front raise") ||
-      texto.includes("rear delt") ||
-      texto.includes("upright row") ||
-      texto.includes("military")
-    ) &&
-
-    !texto.includes("leg") &&
-    !texto.includes("hip") &&
-    !texto.includes("calf") &&
-    !texto.includes("glute")
-  ) {
-    return {
-      grupoMuscular: "Hombros",
-
-      musculoPrincipal: "deltoides" as const,
-
-      mapaDeEnfoque: [
-        {
-          region: "deltoides" as const,
-          nivel: "principal" as const,
-        },
-
-        {
-          region: "trapecios" as const,
-          nivel: "secundario" as const,
-        },
-
-        {
-          region: "triceps" as const,
-          nivel: "indirecto" as const,
-        },
-      ],
-    };
-  }
-
-  // BICEPS
-  if (
-    (texto.includes("curl") ||
-      texto.includes("bicep")) &&
-
+    (texto.includes("curl") || texto.includes("bicep")) &&
     !texto.includes("leg") &&
     !texto.includes("hamstring") &&
     !texto.includes("femoral")
   ) {
-    return {
-      grupoMuscular: "Biceps",
-
-      musculoPrincipal: "biceps" as const,
-
-      mapaDeEnfoque: [
-        {
-          region: "biceps" as const,
-          nivel: "principal" as const,
-        },
-      ],
-    };
+    return biceps();
   }
 
-  // TRICEPS
-  if (
-    texto.includes("tricep") ||
-    texto.includes("triceps") ||
-    texto.includes("dip") ||
-    texto.includes("skull")
-  ) {
-    return {
-      grupoMuscular: "Triceps",
-
-      musculoPrincipal: "triceps" as const,
-
-      mapaDeEnfoque: [
-        {
-          region: "triceps" as const,
-          nivel: "principal" as const,
-        },
-
-        {
-          region: "pectoral" as const,
-          nivel: "secundario" as const,
-        },
-      ],
-    };
-  }
-
-  // PIERNAS
   if (
     texto.includes("squat") ||
+    texto.includes("sentadilla") ||
     texto.includes("deadlift") ||
+    texto.includes("peso muerto") ||
     texto.includes("lunge") ||
+    texto.includes("zancada") ||
     texto.includes("leg") ||
     texto.includes("calf") ||
+    texto.includes("gemelo") ||
+    texto.includes("pantorrilla") ||
     texto.includes("hamstring") ||
     texto.includes("femoral") ||
     texto.includes("hip") ||
-    texto.includes("glute")
+    texto.includes("glute") ||
+    texto.includes("gluteo") ||
+    texto.includes("glúteo") ||
+    texto.includes("step up") ||
+    texto.includes("caminata de pato") ||
+    texto.includes("superman en cuadrupedia") ||
+    texto.includes("hidrantes") ||
+    texto.includes("abduccion") ||
+    texto.includes("abducción") ||
+    texto.includes("almejas") ||
+    texto.includes("patadas de burro") ||
+    texto.includes("caminata lateral")
   ) {
-    return {
-      grupoMuscular: "Piernas",
-
-      musculoPrincipal: "cuadriceps" as const,
-
-      mapaDeEnfoque: [
-        {
-          region: "cuadriceps" as const,
-          nivel: "principal" as const,
-        },
-
-        {
-          region: "gluteos" as const,
-          nivel: "secundario" as const,
-        },
-
-        {
-          region: "isquiotibiales" as const,
-          nivel: "secundario" as const,
-        },
-      ],
-    };
+    return piernas();
   }
 
   return {
@@ -515,11 +290,7 @@ function obtenerChecklist(grupo: string) {
     Core: ["Mantener tensión", "Respirar normal", "Evitar compensaciones"],
   };
 
-  return datos[grupo] ?? [
-    "Controlar movimiento",
-    "No usar impulso",
-    "Buena postura",
-  ];
+  return datos[grupo] ?? ["Controlar movimiento", "No usar impulso", "Buena postura"];
 }
 
 function obtenerErrores(grupo: string) {
@@ -533,45 +304,25 @@ function obtenerErrores(grupo: string) {
     Core: ["Perder alineación", "Contener respiración", "Relajar abdomen"],
   };
 
-  return datos[grupo] ?? [
-    "Bajar demasiado rápido",
-    "Perder técnica",
-    "Compensar movimiento",
-  ];
+  return datos[grupo] ?? ["Bajar demasiado rápido", "Perder técnica", "Compensar movimiento"];
 }
 
-export const ejercicios: Ejercicio[] =
-  ejerciciosImportados.map((ejercicio) => {
-    const clasificacion =
-      clasificarEjercicio(
-        ejercicio.nombre,
-        ejercicio.urlFuente,
-        ejercicio.id
-      );
+export const ejercicios: Ejercicio[] = ejerciciosImportados.map((ejercicio) => {
+  const clasificacion = clasificarEjercicio(
+    ejercicio.nombre,
+    ejercicio.urlFuente,
+    ejercicio.id
+  );
 
-    return {
-      ...ejercicio,
-
-      youtubeId:
-        ejercicio.youtubeId ?? "",
-
-      ...clasificacion,
-
-      dificultad: "Intermedio",
-
-      descripcion:
-        `Ejercicio enfocado principalmente en ${clasificacion.grupoMuscular.toLowerCase()}.`,
-
-      checklist:
-        obtenerChecklist(
-          clasificacion.grupoMuscular
-        ),
-
-      erroresComunes:
-        obtenerErrores(
-          clasificacion.grupoMuscular
-        ),
-    };
-  });
+  return {
+    ...ejercicio,
+    youtubeId: ejercicio.youtubeId ?? "",
+    ...clasificacion,
+    dificultad: "Intermedio",
+    descripcion: `Ejercicio enfocado principalmente en ${clasificacion.grupoMuscular.toLowerCase()}.`,
+    checklist: obtenerChecklist(clasificacion.grupoMuscular),
+    erroresComunes: obtenerErrores(clasificacion.grupoMuscular),
+  };
+});
 
 export default ejercicios;
