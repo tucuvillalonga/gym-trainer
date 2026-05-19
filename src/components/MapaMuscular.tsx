@@ -18,18 +18,12 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
   };
 
   return (
-    <section style={{ marginTop: "24px" }}>
+    <section className="mapa-muscular">
       <h3>Mapa muscular</h3>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "32px",
-          alignItems: "flex-start",
-          marginTop: "16px",
-        }}
-      >
-        <div style={{ display: "flex", gap: "28px" }}>
+      <div className="mapa-muscular-layout">
+
+        <div className="mapa-vistas">
   <div>
     <p style={{ textAlign: "center", fontWeight: 700 }}>Vista frontal</p>
 
