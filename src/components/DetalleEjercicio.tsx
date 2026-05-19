@@ -11,7 +11,9 @@ function DetalleEjercicio({ ejercicio }: Props) {
       <div className="detalle-header">
         <div>
           <span className="tag">{ejercicio.grupoMuscular}</span>
+
           <h2>{ejercicio.nombre}</h2>
+
           <p>{ejercicio.descripcion}</p>
         </div>
       </div>
@@ -20,13 +22,19 @@ function DetalleEjercicio({ ejercicio }: Props) {
         <div className="panel">
           <h3>Video tutorial</h3>
 
-          <div className="video-wrapper">
-            <iframe
-              src={`https://www.youtube.com/embed/${ejercicio.youtubeId}`}
-              title={`Video tutorial de ${ejercicio.nombre}`}
-              allowFullScreen
-            />
-          </div>
+          {ejercicio.youtubeId ? (
+            <div className="video-wrapper">
+              <iframe
+                src={`https://www.youtube.com/embed/${ejercicio.youtubeId}`}
+                title={`Video tutorial de ${ejercicio.nombre}`}
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="video-placeholder">
+              <p>Video próximamente</p>
+            </div>
+          )}
         </div>
 
         <div className="panel">
@@ -37,6 +45,7 @@ function DetalleEjercicio({ ejercicio }: Props) {
       <div className="detalle-grid">
         <div className="panel">
           <h3>Checklist de técnica</h3>
+
           <ul className="lista-check">
             {ejercicio.checklist.map((item) => (
               <li key={item}>{item}</li>
@@ -46,6 +55,7 @@ function DetalleEjercicio({ ejercicio }: Props) {
 
         <div className="panel">
           <h3>Errores comunes</h3>
+
           <ul className="lista-error">
             {ejercicio.erroresComunes.map((error) => (
               <li key={error}>{error}</li>

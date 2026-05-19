@@ -1,429 +1,178 @@
 import type { Ejercicio } from "../types/ejercicio";
-import pressMilitarImg from "../assets/ejercicios/press-militar.webp";
-import sentadillaImg from "../assets/ejercicios/sentadilla.webp";
-import elevacionLateralMancuerna from "../assets/ejercicios/elevacion-lateral-mancuerna.webp";
-import pechoPlanoBancoBarra from "../assets/ejercicios/pecho-plano-banco-barra.webp";
-import flexiones from "../assets/ejercicios/flexiones.webp";
-import dominadas from "../assets/ejercicios/dominadas.webp";
-import remoBarra from "../assets/ejercicios/remo-barra.webp";
-import hipthrust from "../assets/ejercicios/hipthrust.webp";
-import curlBiceps from "../assets/ejercicios/curl-biceps.webp";
-import plancha from "../assets/ejercicios/plancha.webp";
+import ejerciciosImportados from "./importados/ejercicios-simplyfitness.json";
 
+function clasificarEjercicio(nombre: string, url: string) {
+  const texto = `${nombre} ${url}`.toLowerCase();
 
+  if (
+    texto.includes("bench") ||
+    texto.includes("fly") ||
+    texto.includes("push-up")
+  ) {
+    return {
+      grupoMuscular: "Pecho",
+      musculoPrincipal: "pectoral" as const,
+      mapaDeEnfoque: [
+        { region: "pectoral" as const, nivel: "principal" as const },
+        { region: "triceps" as const, nivel: "secundario" as const },
+        { region: "deltoides" as const, nivel: "secundario" as const },
+      ],
+    };
+  }
 
+  if (
+    texto.includes("row") ||
+    texto.includes("pulldown") ||
+    texto.includes("pull-up")
+  ) {
+    return {
+      grupoMuscular: "Espalda",
+      musculoPrincipal: "dorsales" as const,
+      mapaDeEnfoque: [
+        { region: "dorsales" as const, nivel: "principal" as const },
+        { region: "biceps" as const, nivel: "secundario" as const },
+        { region: "trapecios" as const, nivel: "secundario" as const },
+      ],
+    };
+  }
+
+  if (
+    texto.includes("shoulder") ||
+    texto.includes("raise") ||
+    texto.includes("military")
+  ) {
+    return {
+      grupoMuscular: "Hombros",
+      musculoPrincipal: "deltoides" as const,
+      mapaDeEnfoque: [
+        { region: "deltoides" as const, nivel: "principal" as const },
+        { region: "trapecios" as const, nivel: "secundario" as const },
+        { region: "triceps" as const, nivel: "indirecto" as const },
+      ],
+    };
+  }
+
+if (
+  (
+    texto.includes("curl") ||
+    texto.includes("bicep")
+  ) &&
+
+  !texto.includes("leg") &&
+  !texto.includes("hamstring") &&
+  !texto.includes("femoral")
+) {
+  return {
+    grupoMuscular: "Biceps",
+
+    musculoPrincipal: "biceps" as const,
+
+    mapaDeEnfoque: [
+      {
+        region: "biceps" as const,
+        nivel: "principal" as const,
+      },
+
+      {
+        region: "deltoides" as const,
+        nivel: "indirecto" as const,
+      },
+    ],
+  };
+}
+
+if (
+  texto.includes("tricep") ||
+texto.includes("triceps") ||
+texto.includes("dip") ||
+texto.includes("skull")
+) {
+  return {
+    grupoMuscular: "Triceps",
+
+    musculoPrincipal: "triceps" as const,
+
+    mapaDeEnfoque: [
+      {
+        region: "triceps" as const,
+        nivel: "principal" as const,
+      },
+
+      {
+        region: "pectoral" as const,
+        nivel: "secundario" as const,
+      },
+
+      {
+        region: "deltoides" as const,
+        nivel: "indirecto" as const,
+      },
+    ],
+  };
+}
+
+  if (
+    texto.includes("squat") ||
+    texto.includes("deadlift") ||
+    texto.includes("lunge") ||
+    texto.includes("leg") ||
+    texto.includes("calf")||
+    texto.includes("leg-extension") ||
+    texto.includes("leg extension")
+  ) {
+    return {
+      grupoMuscular: "Piernas",
+      musculoPrincipal: "cuadriceps" as const,
+      mapaDeEnfoque: [
+        { region: "cuadriceps" as const, nivel: "principal" as const },
+        { region: "gluteos" as const, nivel: "secundario" as const },
+        { region: "isquiotibiales" as const, nivel: "secundario" as const },
+      ],
+    };
+  }
+
+  if (
+    texto.includes("crunch") ||
+    texto.includes("plank") ||
+    texto.includes("ab")
+  ) {
+    return {
+      grupoMuscular: "Core",
+      musculoPrincipal: "abdominales" as const,
+      mapaDeEnfoque: [
+        { region: "abdominales" as const, nivel: "principal" as const },
+        { region: "oblicuos" as const, nivel: "secundario" as const },
+      ],
+    };
+  }
+
+  return {
+    grupoMuscular: "Otros",
+    musculoPrincipal: "abdominales" as const,
+    mapaDeEnfoque: [],
+  };
+}
 
 export const ejercicios: Ejercicio[] = [
-  {
-    id: "press-militar",
-    nombre: "Press militar",
-    grupoMuscular: "Hombros",
-    musculoPrincipal: "deltoides",
+  ...ejerciciosImportados.map((ejercicio) => ({
+    ...ejercicio,
+
+    youtubeId: ejercicio.youtubeId ?? "",
+
+    ...clasificarEjercicio(ejercicio.nombre, ejercicio.urlFuente),
+
     dificultad: "Intermedio",
-    youtubeId: "2yjwXTZQDDI",
-    imagen: pressMilitarImg,
 
     descripcion:
-      "Ejercicio de empuje enfocado principalmente en hombros y tríceps.",
+      "Ejercicio importado automáticamente.",
 
     checklist: [
-      "Mantener el core firme",
-      "No arquear la espalda",
-      "Empujar en línea recta",
-      "Controlar la bajada",
+      "Controlar el movimiento",
+      "No usar impulso",
     ],
 
     erroresComunes: [
-      "Arquear demasiado la espalda",
-      "Bajar rápido el peso",
-      "Usar impulso con piernas",
+      "Bajar demasiado rápido",
     ],
-
-    mapaDeEnfoque: [
-      {
-        region: "deltoides",
-        nivel: "principal",
-      },
-
-      {
-        region: "triceps",
-        nivel: "secundario",
-      },
-
-      {
-        region: "trapecios",
-        nivel: "indirecto",
-      },
-    ],
-  },
-
-  {
-    id: "elevaciones-laterales",
-    nombre: "Elevaciones laterales",
-    grupoMuscular: "Hombros",
-    musculoPrincipal: "deltoides",
-    dificultad: "Principiante",
-    youtubeId: "3VcKaXpzqRo",
-    imagen: elevacionLateralMancuerna,
-
-    descripcion:
-      "Ejercicio aislado para trabajar el deltoide lateral.",
-
-    checklist: [
-      "Subir hasta altura de hombros",
-      "Controlar el descenso",
-      "Mantener codos levemente flexionados",
-    ],
-
-    erroresComunes: [
-      "Usar impulso",
-      "Subir demasiado alto",
-      "Mover el torso",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "deltoides",
-        nivel: "principal",
-      },
-
-      {
-        region: "trapecios",
-        nivel: "secundario",
-      },
-    ],
-  },
-
-  {
-    id: "press-banca",
-    nombre: "Press banca",
-    grupoMuscular: "Pecho",
-    musculoPrincipal: "pectoral",
-    dificultad: "Intermedio",
-    youtubeId: "rT7DgCr-3pg",
-    imagen: pechoPlanoBancoBarra,
-
-    descripcion:
-      "Ejercicio principal para desarrollar pecho y fuerza de empuje.",
-
-    checklist: [
-      "Escápulas retraídas",
-      "Pies firmes",
-      "Bajar controlado",
-      "Empujar recto",
-    ],
-
-    erroresComunes: [
-      "Rebotar la barra",
-      "Abrir demasiado los codos",
-      "Levantar glúteos",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "pectoral",
-        nivel: "principal",
-      },
-
-      {
-        region: "triceps",
-        nivel: "secundario",
-      },
-
-      {
-        region: "deltoides",
-        nivel: "secundario",
-      },
-    ],
-  },
-
-  {
-    id: "flexiones",
-    nombre: "Flexiones",
-    grupoMuscular: "Pecho",
-    musculoPrincipal: "pectoral",
-    dificultad: "Principiante",
-    youtubeId: "IODxDxX7oi4",
-    imagen: flexiones,
-
-    descripcion:
-      "Ejercicio clásico de peso corporal para pecho y tríceps.",
-
-    checklist: [
-      "Cuerpo alineado",
-      "Bajar controlado",
-      "Mantener abdomen firme",
-    ],
-
-    erroresComunes: [
-      "Hundirse de cadera",
-      "No bajar suficiente",
-      "Abrir demasiado los brazos",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "pectoral",
-        nivel: "principal",
-      },
-
-      {
-        region: "triceps",
-        nivel: "secundario",
-      },
-
-      {
-        region: "abdominales",
-        nivel: "indirecto",
-      },
-    ],
-  },
-
-  {
-    id: "dominadas",
-    nombre: "Dominadas",
-    grupoMuscular: "Espalda",
-    musculoPrincipal: "dorsales",
-    dificultad: "Avanzado",
-    youtubeId: "eGo4IYlbE5g",
-    imagen: dominadas,
-
-    descripcion:
-      "Ejercicio fundamental para espalda y fuerza de tracción.",
-
-    checklist: [
-      "Pecho arriba",
-      "Bajar controlado",
-      "Evitar balanceo",
-    ],
-
-    erroresComunes: [
-      "Usar impulso",
-      "Acortar recorrido",
-      "Relajar hombros",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "dorsales",
-        nivel: "principal",
-      },
-
-      {
-        region: "biceps",
-        nivel: "secundario",
-      },
-
-      {
-        region: "trapecios",
-        nivel: "secundario",
-      },
-    ],
-  },
-
-  {
-    id: "remo-barra",
-    nombre: "Remo con barra",
-    grupoMuscular: "Espalda",
-    musculoPrincipal: "dorsales",
-    dificultad: "Intermedio",
-    youtubeId: "FWJR5Ve8bnQ",
-    imagen: remoBarra,
-
-    descripcion:
-      "Movimiento de tracción para desarrollar grosor de espalda.",
-
-    checklist: [
-      "Espalda recta",
-      "Tirar hacia el abdomen",
-      "Controlar el descenso",
-    ],
-
-    erroresComunes: [
-      "Redondear espalda",
-      "Usar impulso",
-      "Encoger hombros",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "dorsales",
-        nivel: "principal",
-      },
-
-      {
-        region: "trapecios",
-        nivel: "secundario",
-      },
-
-      {
-        region: "biceps",
-        nivel: "secundario",
-      },
-    ],
-  },
-
-  {
-    id: "sentadilla",
-    nombre: "Sentadilla",
-    grupoMuscular: "Piernas",
-    musculoPrincipal: "cuadriceps",
-    dificultad: "Intermedio",
-    youtubeId: "aclHkVaku9U",
-    imagen: sentadillaImg,
-
-    descripcion:
-      "Movimiento básico de piernas enfocado en cuádriceps y glúteos.",
-
-    checklist: [
-      "Espalda recta",
-      "Rodillas alineadas",
-      "Bajar controlado",
-      "Empujar con talones",
-    ],
-
-    erroresComunes: [
-      "Rodillas hacia adentro",
-      "Levantar talones",
-      "Redondear espalda",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "cuadriceps",
-        nivel: "principal",
-      },
-
-      {
-        region: "gluteos",
-        nivel: "secundario",
-      },
-
-      {
-        region: "abdominales",
-        nivel: "indirecto",
-      },
-    ],
-  },
-
-  {
-    id: "hip-thrust",
-    nombre: "Hip thrust",
-    grupoMuscular: "Piernas",
-    musculoPrincipal: "gluteos",
-    dificultad: "Intermedio",
-    youtubeId: "LM8XHLYJoYs",
-    imagen: hipthrust,
-
-    descripcion:
-      "Ejercicio de empuje de cadera enfocado en glúteos.",
-
-    checklist: [
-      "Empujar con talones",
-      "Apretar glúteos arriba",
-      "No hiperextender espalda",
-    ],
-
-    erroresComunes: [
-      "Empujar con lumbar",
-      "Subir demasiado rápido",
-      "Separar pies",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "gluteos",
-        nivel: "principal",
-      },
-
-      {
-        region: "isquiotibiales",
-        nivel: "secundario",
-      },
-
-      {
-        region: "abdominales",
-        nivel: "indirecto",
-      },
-    ],
-  },
-
-  {
-    id: "curl-biceps",
-    nombre: "Curl de bíceps",
-    grupoMuscular: "Brazos",
-    musculoPrincipal: "biceps",
-    dificultad: "Principiante",
-    youtubeId: "ykJmrZ5v0Oo",
-    imagen: curlBiceps,
-
-    descripcion:
-      "Ejercicio clásico de aislamiento para bíceps.",
-
-    checklist: [
-      "Codos quietos",
-      "Subida controlada",
-      "Bajada lenta",
-    ],
-
-    erroresComunes: [
-      "Mover el torso",
-      "Usar impulso",
-      "Acortar recorrido",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "biceps",
-        nivel: "principal",
-      },
-
-      {
-        region: "biceps",
-        nivel: "secundario",
-      },
-    ],
-  },
-
-  {
-    id: "plancha",
-    nombre: "Plancha",
-    grupoMuscular: "Core",
-    musculoPrincipal: "abdominales",
-    dificultad: "Principiante",
-    youtubeId: "pSHjTRCQxIw",
-    imagen: plancha,
-
-    descripcion:
-      "Ejercicio isométrico para estabilidad del core.",
-
-    checklist: [
-      "Mantener línea recta",
-      "Core activo",
-      "Respirar controlado",
-    ],
-
-    erroresComunes: [
-      "Hundirse de cadera",
-      "Elevar demasiado la cadera",
-      "Relajar abdomen",
-    ],
-
-    mapaDeEnfoque: [
-      {
-        region: "abdominales",
-        nivel: "principal",
-      },
-
-      {
-        region: "oblicuos",
-        nivel: "secundario",
-      },
-
-      {
-        region: "espaldaBaja",
-        nivel: "indirecto",
-      },
-    ],
-  },
+  })),
 ];

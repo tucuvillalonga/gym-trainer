@@ -31,6 +31,8 @@ export type Ejercicio = {
   musculoPrincipal: RegionMuscular;
   dificultad: string;
   youtubeId: string;
+  urlFuente?: string;
+
   descripcion: string;
   checklist: string[];
   erroresComunes: string[];

@@ -157,9 +157,9 @@ button {
   display: grid;
 
   grid-template-columns:
-    repeat(auto-fit, minmax(320px, 1fr));
+    repeat(auto-fit, minmax(520px, 1fr));
 
-  gap: 24px;
+  gap: 32px;
 }
 
 /* TARJETAS */
@@ -534,4 +534,38 @@ button {
     width: 100%;
     max-width: 220px;
   }
+}
+
+.grilla-ejercicios {
+  grid-template-columns:
+    repeat(auto-fit, minmax(520px, 1fr));
+}
+
+@media (max-width: 700px) {
+  .grilla-ejercicios {
+    grid-template-columns: 1fr;
+  }
+}
+
+.video-placeholder {
+  min-height: 220px;
+  border-radius: 18px;
+  border: 1px dashed #334155;
+  background: #0f172a;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  color: #94a3b8;
+  text-align: center;
+  padding: 24px;
+}
+
+.video-placeholder a {
+  color: #60a5fa;
+  font-weight: 700;
+  text-decoration: none;
 }

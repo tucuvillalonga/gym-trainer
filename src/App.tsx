@@ -9,19 +9,19 @@ function App() {
     useState<Ejercicio | null>(null);
 
   const [busqueda, setBusqueda] = useState("");
-
   const [grupoSeleccionado, setGrupoSeleccionado] = useState<string | null>(null);
 
   const ejerciciosFiltrados = ejercicios.filter((ejercicio) => {
-  const coincideBusqueda =
-    ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-    ejercicio.grupoMuscular.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideBusqueda =
+      ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      ejercicio.grupoMuscular.toLowerCase().includes(busqueda.toLowerCase());
 
-  const coincideGrupo =
-    grupoSeleccionado === null || ejercicio.grupoMuscular === grupoSeleccionado;
+    const coincideGrupo =
+      grupoSeleccionado === null ||
+      ejercicio.grupoMuscular === grupoSeleccionado;
 
-  return coincideBusqueda && coincideGrupo;
-});
+    return coincideBusqueda && coincideGrupo;
+  });
 
   const ejerciciosAgrupadosFiltrados =
     ejerciciosFiltrados.reduce<Record<string, Ejercicio[]>>(
@@ -36,6 +36,15 @@ function App() {
       },
       {}
     );
+
+  const gruposOrdenados = Object.entries(ejerciciosAgrupadosFiltrados).sort(
+    ([grupoA], [grupoB]) => {
+      if (grupoA === "Otros") return 1;
+      if (grupoB === "Otros") return -1;
+
+      return grupoA.localeCompare(grupoB);
+    }
+  );
 
   return (
     <div className="layout">
@@ -54,23 +63,23 @@ function App() {
             </div>
 
             <nav className="sidebar-grupos">
-  <button
-    onClick={() => setGrupoSeleccionado(null)}
-    className={grupoSeleccionado === null ? "activo" : ""}
-  >
-    Todos
-  </button>
+              <button
+                onClick={() => setGrupoSeleccionado(null)}
+                className={grupoSeleccionado === null ? "activo" : ""}
+              >
+                Todos
+              </button>
 
-  {Object.keys(ejerciciosAgrupadosFiltrados).map((grupo) => (
-    <button
-      key={grupo}
-      onClick={() => setGrupoSeleccionado(grupo)}
-      className={grupoSeleccionado === grupo ? "activo" : ""}
-    >
-      {grupo}
-    </button>
-  ))}
-</nav>
+              {gruposOrdenados.map(([grupo]) => (
+                <button
+                  key={grupo}
+                  onClick={() => setGrupoSeleccionado(grupo)}
+                  className={grupoSeleccionado === grupo ? "activo" : ""}
+                >
+                  {grupo}
+                </button>
+              ))}
+            </nav>
           </>
         )}
       </aside>
@@ -78,25 +87,23 @@ function App() {
       <main className="contenido">
         {!ejercicioSeleccionado ? (
           <div className="grupos-ejercicios">
-            {Object.entries(ejerciciosAgrupadosFiltrados).map(
-              ([grupo, ejerciciosDelGrupo]) => (
-                <section key={grupo} className="grupo-ejercicios">
-                  <h2>{grupo}</h2>
+            {gruposOrdenados.map(([grupo, ejerciciosDelGrupo]) => (
+              <section key={grupo} className="grupo-ejercicios">
+                <h2>{grupo}</h2>
 
-                  <div className="grilla-ejercicios">
-                    {ejerciciosDelGrupo.map((ejercicio) => (
-                      <div
-                        key={ejercicio.id}
-                        onClick={() => setEjercicioSeleccionado(ejercicio)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <TarjetaEjercicio ejercicio={ejercicio} />
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )
-            )}
+                <div className="grilla-ejercicios">
+                  {ejerciciosDelGrupo.map((ejercicio) => (
+                    <div
+                      key={ejercicio.id}
+                      onClick={() => setEjercicioSeleccionado(ejercicio)}
+                      style={{ cursor: "pointer" }}
+                    >
+                      <TarjetaEjercicio ejercicio={ejercicio} />
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
           </div>
         ) : (
           <div style={{ marginTop: "30px" }}>
@@ -104,7 +111,7 @@ function App() {
               className="boton-volver"
               onClick={() => setEjercicioSeleccionado(null)}
             >
-            ← Volver a ejercicios
+              ← Volver a ejercicios
             </button>
 
             <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
