@@ -46,6 +46,25 @@ function App() {
     }
   );
 
+  const todosLosGrupos = Array.from(
+    new Set(ejercicios.map((ejercicio) => ejercicio.grupoMuscular))
+  ).sort((grupoA, grupoB) => {
+    if (grupoA === "Otros") return 1;
+    if (grupoB === "Otros") return -1;
+
+    return grupoA.localeCompare(grupoB);
+  });
+
+  const cantidadPorGrupo = ejercicios.reduce<Record<string, number>>(
+    (cantidades, ejercicio) => {
+      cantidades[ejercicio.grupoMuscular] =
+        (cantidades[ejercicio.grupoMuscular] ?? 0) + 1;
+
+      return cantidades;
+    },
+    {}
+  );
+
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -67,16 +86,20 @@ function App() {
                 onClick={() => setGrupoSeleccionado(null)}
                 className={grupoSeleccionado === null ? "activo" : ""}
               >
-                Todos
+                <span>Todos</span>
+                <span className="contador-grupo">{ejercicios.length}</span>
               </button>
 
-              {gruposOrdenados.map(([grupo]) => (
+              {todosLosGrupos.map((grupo) => (
                 <button
                   key={grupo}
                   onClick={() => setGrupoSeleccionado(grupo)}
                   className={grupoSeleccionado === grupo ? "activo" : ""}
                 >
-                  {grupo}
+                  <span>{grupo}</span>
+                  <span className="contador-grupo">
+                    {cantidadPorGrupo[grupo] ?? 0}
+                  </span>
                 </button>
               ))}
             </nav>
@@ -89,7 +112,12 @@ function App() {
           <div className="grupos-ejercicios">
             {gruposOrdenados.map(([grupo, ejerciciosDelGrupo]) => (
               <section key={grupo} className="grupo-ejercicios">
-                <h2>{grupo}</h2>
+                <h2>
+                  {grupo}
+                  <span className="contador-titulo">
+                    {ejerciciosDelGrupo.length}
+                  </span>
+                </h2>
 
                 <div className="grilla-ejercicios">
                   {ejerciciosDelGrupo.map((ejercicio) => (
