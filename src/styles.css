@@ -5,7 +5,6 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-
   background: #0b1120;
   color: #f3f4f6;
 }
@@ -23,25 +22,18 @@ button {
 
 .sidebar {
   width: 280px;
-
   background: #0f172a;
-
   border-right: 1px solid #1e293b;
-
   padding: 32px 24px;
-
   position: sticky;
   top: 0;
-
   height: 100vh;
 }
 
 .logo {
   font-size: 34px;
   font-weight: 800;
-
   margin-bottom: 32px;
-
   color: white;
 }
 
@@ -49,33 +41,25 @@ button {
 
 .contenido {
   flex: 1;
-
   padding: 40px;
 }
 
 /* BUSCADOR */
 
 .buscador {
-  margin-bottom: 18px;
+  margin-top: 50px;
+  margin-bottom: 22px;
 }
 
 .buscador input {
   width: 100%;
-
   padding: 16px 18px;
-
   border-radius: 18px;
-
   border: 1px solid #1e293b;
-
   background: #111827;
-
   color: #f9fafb;
-
   font-size: 15px;
-
   outline: none;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -87,7 +71,6 @@ button {
 
 .buscador input:focus {
   border-color: #2563eb;
-
   box-shadow:
     0 0 0 4px rgba(37, 99, 235, 0.15);
 }
@@ -97,26 +80,18 @@ button {
 .sidebar-grupos {
   display: flex;
   flex-direction: column;
-
   gap: 12px;
 }
 
 .sidebar-grupos button {
   border: 1px solid #1e293b;
-
   background: #111827;
-
   color: #f3f4f6;
-
   padding: 14px 18px;
-
   border-radius: 16px;
-
   text-align: left;
-
   font-size: 15px;
   font-weight: 600;
-
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -125,15 +100,12 @@ button {
 
 .sidebar-grupos button:hover {
   background: #1d4ed8;
-
   border-color: #2563eb;
-
   transform: translateX(4px);
 }
 
 .sidebar-grupos button.activo {
   background: #2563eb;
-
   border-color: #3b82f6;
 }
 
@@ -145,9 +117,7 @@ button {
 
 .grupo-ejercicios h2 {
   font-size: 42px;
-
   margin-bottom: 24px;
-
   color: white;
 }
 
@@ -155,10 +125,8 @@ button {
 
 .grilla-ejercicios {
   display: grid;
-
   grid-template-columns:
     repeat(auto-fit, minmax(520px, 1fr));
-
   gap: 32px;
 }
 
@@ -166,27 +134,20 @@ button {
 
 .tarjeta-ejercicio {
   background: #111827;
-
   border: 1px solid #1e293b;
-
   border-radius: 28px;
-
   padding: 24px;
-
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
     box-shadow 0.2s ease;
-
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .tarjeta-ejercicio:hover {
   transform: translateY(-6px);
-
   border-color: #2563eb;
-
   box-shadow:
     0 18px 40px rgba(0, 0, 0, 0.45);
 }
@@ -194,17 +155,13 @@ button {
 .tarjeta-ejercicio h2 {
   margin-top: 18px;
   margin-bottom: 12px;
-
   font-size: 36px;
-
   color: white;
 }
 
 .descripcion {
   color: #94a3b8;
-
   line-height: 1.7;
-
   margin-bottom: 28px;
 }
 
@@ -212,9 +169,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-
   padding-top: 18px;
-
   border-top: 1px solid #1e293b;
 }
 
@@ -222,15 +177,10 @@ button {
 
 .tag {
   display: inline-flex;
-
   padding: 8px 14px;
-
   border-radius: 999px;
-
   background: rgba(37, 99, 235, 0.12);
-
   color: #60a5fa;
-
   font-size: 13px;
   font-weight: 700;
 }
@@ -247,17 +197,13 @@ button {
 
 .detalle-header h2 {
   font-size: 52px;
-
   margin: 18px 0 12px;
-
   color: white;
 }
 
 .detalle-header p {
   color: #94a3b8;
-
   font-size: 18px;
-
   line-height: 1.7;
 }
 
@@ -265,23 +211,16 @@ button {
 
 .detalle-grid {
   display: grid;
-
   grid-template-columns: 1fr 1fr;
-
   gap: 24px;
-
   margin-top: 24px;
 }
 
 .panel {
   background: #111827;
-
   border: 1px solid #1e293b;
-
   border-radius: 28px;
-
   padding: 24px;
-
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.35);
 }
@@ -290,22 +229,16 @@ button {
 
 .video-wrapper {
   position: relative;
-
   width: 100%;
-
   aspect-ratio: 16 / 9;
-
   overflow: hidden;
-
   border-radius: 18px;
-
   background: black;
 }
 
 .video-wrapper iframe {
   width: 100%;
   height: 100%;
-
   border: 0;
 }
 
@@ -314,7 +247,6 @@ button {
 .lista-check,
 .lista-error {
   padding-left: 20px;
-
   line-height: 1.9;
 }
 
@@ -335,9 +267,7 @@ button {
 
   .sidebar {
     width: 100%;
-
     height: auto;
-
     position: relative;
   }
 
@@ -366,13 +296,10 @@ button {
   border: 1px solid #1e293b;
   background: #111827;
   color: #f9fafb;
-
   padding: 12px 18px;
   border-radius: 14px;
-
   font-size: 15px;
   font-weight: 700;
-
   transition:
     background 0.2s ease,
     transform 0.2s ease,
@@ -388,13 +315,9 @@ button {
 .imagen-ejercicio {
   width: 100%;
   height: 190px;
-
   overflow: hidden;
-
   border-radius: 18px;
-
   margin-bottom: 18px;
-
   background: #0f172a;
 }
 
@@ -437,7 +360,6 @@ button {
 
 .tarjeta-ejercicio:hover .imagen-ejercicio img {
   transform: scale(1.05);
-
   opacity: 0.92;
 }
 
@@ -497,6 +419,41 @@ button {
   margin-top: 24px;
 }
 
+.mapa-muscular-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.mapa-muscular-header h3 {
+  margin: 0;
+}
+
+.mapa-leyenda {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.mapa-leyenda span {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mapa-leyenda i {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
+}
+
 .mapa-muscular-layout {
   display: flex;
   gap: 32px;
@@ -506,8 +463,62 @@ button {
 
 .mapa-vistas {
   display: flex;
-  gap: 28px;
+  gap: 22px;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.mapa-vista {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(37, 99, 235, 0.1), transparent 30%),
+    #111827;
+}
+
+.mapa-vista p {
+  margin: 0 0 10px;
+  text-align: center;
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.figura-muscular {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.musculo {
+  stroke: #0b1120;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  transition:
+    filter 0.2s ease,
+    opacity 0.2s ease,
+    stroke-color 0.2s ease;
+}
+
+.musculo:hover {
+  filter: brightness(1.15);
+  stroke: #e5e7eb;
+}
+
+.linea-cuerpo {
+  fill: none;
+  stroke: rgba(226, 232, 240, 0.28);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+  pointer-events: none;
+  vector-effect: non-scaling-stroke;
 }
 
 .mapa-vistas svg {
@@ -532,7 +543,7 @@ button {
 
   .mapa-vistas svg {
     width: 100%;
-    max-width: 220px;
+    max-width: 240px;
   }
 }
 
@@ -552,13 +563,11 @@ button {
   border-radius: 18px;
   border: 1px dashed #334155;
   background: #0f172a;
-
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
-
   color: #94a3b8;
   text-align: center;
   padding: 24px;
@@ -608,79 +617,56 @@ button {
 .crear-rutina {
   display: flex;
   gap: 12px;
-
   margin-top: 20px;
 }
 
 .crear-rutina input {
   flex: 1;
-
   padding: 12px;
-
   border-radius: 12px;
-
   border: 1px solid #1e293b;
-
   background: #0f172a;
-
   color: white;
 }
 
 .rutinas-grid {
   display: grid;
-
   gap: 16px;
-
   margin-top: 30px;
 }
 
 .rutina-botones {
   display: flex;
-
   gap: 12px;
-
   margin-top: 16px;
 }
 
 .armar-rutina {
   margin-top: 32px;
-
   max-height: 700px;
-
   overflow-y: auto;
 }
 
 .lista-agregar-ejercicios {
   display: grid;
-
   gap: 10px;
-
   margin-top: 20px;
 }
 
 .fila-ejercicio-rutina {
   display: flex;
-
   justify-content: space-between;
-
   align-items: center;
-
   padding: 14px;
-
   border-radius: 14px;
-
   background: rgba(255, 255, 255, 0.03);
 }
 
 .fila-ejercicio-rutina button {
   padding: 10px 16px;
-
   border-radius: 10px;
-
   background: #2563eb;
-
   color: white;
-
   border: 0;
 }
 
@@ -757,12 +743,370 @@ button {
   .rutina-detalle-grid {
     grid-template-columns: 1fr;
   }
-
   .rutina-ejercicio-card {
     grid-template-columns: 1fr;
   }
-
   .rutina-campos {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+.panel-agregar-ejercicios {
+  margin-top: 16px;
+}
+
+/* ===== RUTINAS V2 ===== */
+
+.crear-rutina {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 14px;
+}
+
+.crear-rutina input {
+  padding: 18px 22px;
+  border-radius: 22px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  color: white;
+  font-size: 16px;
+  transition: 0.25s;
+}
+
+.crear-rutina input:focus {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 6px rgba(37, 99, 235, 0.12);
+}
+
+.crear-rutina button {
+  border: 0;
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb, #1d4ed8);
+  color: white;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.crear-rutina button:hover {
+  transform: translateY(-3px);
+}
+
+.rutinas-grid {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(320px, 1fr));
+  gap: 22px;
+}
+
+.rutina-card-clickeable {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  cursor: pointer;
+  transition:0.25s;
+  background:
+    linear-gradient(
+      180deg,
+      #111827,
+      #0f172a
+    );
+}
+
+.rutina-card-clickeable:hover {
+  transform:
+    translateY(-8px);
+  border-color:
+    #2563eb;
+  box-shadow:
+    0 24px 50px rgba(0,0, 0,  0.45);
+}
+
+.rutina-card-clickeable h3 {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.rutina-card-clickeable p {
+  color: #94a3b8;
+  font-size: 18px;
+}
+
+.rutina-detalle-grid {
+  gap: 30px;
+  align-items: start;
+}
+
+.rutina-ejercicio-card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.04),
+      rgba(255,255,255,.02)
+    );
+
+  border:
+
+    1px solid
+    rgba(252, 252, 247, 0.06);
+  border-radius: 26px;
+  padding: 20px;
+  transition: 0.2s;
+}
+
+.rutina-ejercicio-card:hover {
+  transform:
+    translateY(-4px);
+}
+
+.rutina-ejercicio-card img {
+  border-radius: 18px;
+}
+
+.rutina-ejercicio-info h4 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.rutina-ejercicio-info span {
+  color: #60a5fa;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+.rutina-campos {
+  margin-top: 20px;
+  gap: 16px;
+}
+
+.rutina-campos input,
+.rutina-campos select {
+  height: 52px;
+  border-radius: 16px;
+  font-size: 15px;
+}
+
+.panel-agregar-ejercicios {
+  position: sticky;
+  top: 30px;
+  animation:
+    aparecer
+    .35s ease;
+}
+
+.lista-agregar-ejercicios {
+  max-height: 72vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.fila-ejercicio-rutina {
+  padding: 18px;
+  border-radius: 18px;
+  transition: .2s;
+}
+
+.fila-ejercicio-rutina:hover {
+  background:
+    rgba(37,99,235,.08);
+}
+
+.fila-ejercicio-rutina button {
+  min-width: 110px;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.boton-secundario {
+  border-radius: 18px;
+  padding: 14px 18px;
+  transition: .2s;
+}
+
+.boton-secundario:hover {
+  background:
+    #2563eb;
+  color: white;
+  border-color:
+    #2563eb;
+}
+
+@media (max-width: 900px) {
+  .crear-rutina {
+    grid-template-columns: 1fr;
+  }
+
+  .rutina-card-clickeable h3 {
+    font-size: 26px;
+  }
+
+  .rutina-ejercicio-info h4 {
+    font-size: 22px;
+  }
+}
+
+.pantalla-rutinas {
+  animation: aparecer 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.detalle-rutina-activa .detalle-header,
+.detalle-rutina-activa .rutina-detalle-grid,
+.detalle-rutina-activa .boton-volver {
+  animation: aparecer 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.pantalla-rutinas,
+.pantalla-rutinas > h2,
+.pantalla-rutinas > .crear-rutina,
+.rutina-card-clickeable,
+.detalle-rutina-activa .detalle-header,
+.detalle-rutina-activa .rutina-ejercicio-card,
+.detalle-rutina-activa .panel,
+.panel-agregar-ejercicios {
+  animation: aparecer 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.rutina-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.menu-rutina {
+  position: relative;
+}
+
+.menu-rutina-boton {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid #1e293b;
+  background: #111827;
+  color: white;
+  font-size: 28px;
+  transition: .2s;
+}
+
+.menu-rutina-boton:hover {
+  background: #2563eb;
+}
+
+.menu-rutina-dropdown {
+  position: absolute;
+  top: 62px;
+  right: 0;
+  width: 220px;
+  background: #111827;
+  border: 1px solid #1e293b;
+  border-radius: 18px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.menu-rutina-dropdown button {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: white;
+  padding: 18px;
+  text-align: left;
+}
+
+.menu-rutina-dropdown button:hover {
+  background: rgba(37,99,235,.15);
+}
+
+.menu-rutina-dropdown .eliminar {
+  color: #ef4444;
+}
+
+.editar-rutina-inline {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.editar-rutina-inline input {
+  width: 320px;
+  height: 52px;
+  border-radius: 18px;
+  padding: 0 18px;
+}
+
+.editar-rutina-inline {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.editar-rutina-inline input {
+  width: 340px;
+  height: 58px;
+  padding: 0 20px;
+  border-radius: 20px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: white;
+  font-size: 18px;
+  outline: none;
+}
+
+.editar-rutina-inline input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15);
+}
+
+.editar-rutina-inline button {
+  height: 52px;
+  padding: 0 18px;
+  border-radius: 16px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: white;
+  font-weight: 700;
+}
+
+.editar-rutina-inline button:first-of-type {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.editar-rutina-inline button:hover {
+  transform: translateY(-2px);
+}
+
+.menu-rutina {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  margin-top: 26px;
+  margin-bottom: 22px;
+}
+
+.menu-rutina button {
+  min-width: 120px;
+  height: 50px;
+  padding: 0 24px;
+  border-radius: 18px;
+}
+
+.menu-rutina .eliminar {
+  color: #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.menu-rutina .eliminar:hover {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+}
+

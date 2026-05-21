@@ -10,9 +10,7 @@ function crearId() {
 export function useRutinas() {
   const [rutinas, setRutinas] = useState<Rutina[]>(() => {
     const guardadas = localStorage.getItem(CLAVE_STORAGE);
-
     if (!guardadas) return [];
-
     return JSON.parse(guardadas);
   });
 
@@ -21,13 +19,24 @@ export function useRutinas() {
   }, [rutinas]);
 
   function crearRutina(nombre: string) {
-    const nuevaRutina: Rutina = {
-      id: crearId(),
-      nombre,
-      ejercicios: [],
-    };
+    setRutinas((actuales) => [
+      ...actuales,
+      {
+        id: crearId(),
+        nombre,
+        ejercicios: [],
+      },
+    ]);
+  }
 
-    setRutinas((actuales) => [...actuales, nuevaRutina]);
+  function actualizarNombreRutina(rutinaId: string, nombre: string) {
+    setRutinas((actuales) =>
+      actuales.map((rutina) =>
+        rutina.id === rutinaId
+          ? { ...rutina, nombre }
+          : rutina
+      )
+    );
   }
 
   function eliminarRutina(id: string) {
@@ -73,7 +82,9 @@ export function useRutinas() {
         return {
           ...rutina,
           ejercicios: rutina.ejercicios.map((item) =>
-            item.ejercicioId === ejercicioId ? { ...item, ...cambios } : item
+            item.ejercicioId === ejercicioId
+              ? { ...item, ...cambios }
+              : item
           ),
         };
       })
@@ -98,6 +109,7 @@ export function useRutinas() {
   return {
     rutinas,
     crearRutina,
+    actualizarNombreRutina,
     eliminarRutina,
     agregarEjercicioARutina,
     actualizarEjercicioDeRutina,
