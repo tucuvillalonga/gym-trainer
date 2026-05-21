@@ -307,6 +307,102 @@ function obtenerErrores(grupo: string) {
   return datos[grupo] ?? ["Bajar demasiado rápido", "Perder técnica", "Compensar movimiento"];
 }
 
+function obtenerEquipamiento(nombre: string) {
+  const texto = nombre.toLowerCase();
+  const equipos = new Set<string>();
+
+  if (texto.includes("mancuerna") || texto.includes("dumbbell")) {
+    equipos.add("Mancuernas");
+  }
+
+  if (texto.includes("barra") || texto.includes("barbell") || texto.includes("press") || texto.includes("deadlift") || texto.includes("squat")) {
+    equipos.add("Barra");
+  }
+
+  if (texto.includes("cable") || texto.includes("polea") || texto.includes("pulldown")) {
+    equipos.add("Polea");
+  }
+
+  if (texto.includes("kettlebell")) {
+    equipos.add("Kettlebell");
+  }
+
+  if (texto.includes("cuerpo") || texto.includes("peso corporal") || texto.includes("bodyweight") || texto.includes("push-up") || texto.includes("plank") || texto.includes("dip") || texto.includes("burpee")) {
+    equipos.add("Peso corporal");
+  }
+
+  if (texto.includes("machine") || texto.includes("maquina") || texto.includes("máquina") || texto.includes("tractor") || texto.includes("remadora")) {
+    equipos.add("Máquina");
+  }
+
+  if (equipos.size === 0) {
+    equipos.add("Básico");
+  }
+
+  return Array.from(equipos);
+}
+
+function obtenerObjetivo(nombre: string) {
+  const texto = nombre.toLowerCase();
+
+  if (texto.includes("deadlift") || texto.includes("squat") || texto.includes("press") || texto.includes("pull-up") || texto.includes("lift")) {
+    return "Fuerza" as const;
+  }
+
+  if (texto.includes("crunch") || texto.includes("plank") || texto.includes("abdominal") || texto.includes("oblicuo")) {
+    return "Resistencia" as const;
+  }
+
+  return "Hipertrofia" as const;
+}
+
+function obtenerTipoEjercicio(nombre: string) {
+  const texto = nombre.toLowerCase();
+
+  if (
+    texto.includes("curl") ||
+    texto.includes("fly") ||
+    texto.includes("extensión") ||
+    texto.includes("extension") ||
+    texto.includes("kickback") ||
+    texto.includes("raise") ||
+    texto.includes("elevación") ||
+    texto.includes("elevacion")
+  ) {
+    return "Aislamiento" as const;
+  }
+
+  return "Compuesto" as const;
+}
+
+function obtenerDificultad(nombre: string) {
+  const texto = nombre.toLowerCase();
+
+  if (
+    texto.includes("deadlift") ||
+    texto.includes("squat") ||
+    texto.includes("pull-up") ||
+    texto.includes("muscle up") ||
+    texto.includes("burpee") ||
+    texto.includes("press militar")
+  ) {
+    return "Avanzado" as const;
+  }
+
+  if (
+    texto.includes("curl") ||
+    texto.includes("fly") ||
+    texto.includes("crunch") ||
+    texto.includes("elevación") ||
+    texto.includes("elevacion") ||
+    texto.includes("kickback")
+  ) {
+    return "Principiante" as const;
+  }
+
+  return "Intermedio" as const;
+}
+
 export const ejercicios: Ejercicio[] = ejerciciosImportados.map((ejercicio) => {
   const clasificacion = clasificarEjercicio(
     ejercicio.nombre,
@@ -318,7 +414,10 @@ export const ejercicios: Ejercicio[] = ejerciciosImportados.map((ejercicio) => {
     ...ejercicio,
     youtubeId: ejercicio.youtubeId ?? "",
     ...clasificacion,
-    dificultad: "Intermedio",
+    dificultad: obtenerDificultad(ejercicio.nombre),
+    equipamiento: obtenerEquipamiento(ejercicio.nombre),
+    objetivo: obtenerObjetivo(ejercicio.nombre),
+    tipoEjercicio: obtenerTipoEjercicio(ejercicio.nombre),
     descripcion: `Ejercicio enfocado principalmente en ${clasificacion.grupoMuscular.toLowerCase()}.`,
     checklist: obtenerChecklist(clasificacion.grupoMuscular),
     erroresComunes: obtenerErrores(clasificacion.grupoMuscular),

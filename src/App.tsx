@@ -1,74 +1,131 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ejercicios } from "./data/ejercicios";
 import type { Ejercicio } from "./types/ejercicio";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
 import DetalleEjercicio from "./components/DetalleEjercicio";
 import MisRutinas from "./components/MisRutinas";
 
+const CLAVE_FAVORITOS = "gym-trainer-favoritos";
+
 function App() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] =
     useState<Ejercicio | null>(null);
-
   const [busqueda, setBusqueda] = useState("");
-  const [grupoSeleccionado, setGrupoSeleccionado] = useState<string | null>(
-    null
-  );
-  const [pantalla, setPantalla] = useState<"ejercicios" | "rutinas">(
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
+  const [pantalla, setPantalla] = useState<"ejercicios" | "favoritos" | "rutinas">(
     "ejercicios"
   );
-
-  const ejerciciosFiltrados = ejercicios.filter((ejercicio) => {
-    const coincideBusqueda =
-      ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
-      ejercicio.grupoMuscular.toLowerCase().includes(busqueda.toLowerCase());
-
-    const coincideGrupo =
-      grupoSeleccionado === null ||
-      ejercicio.grupoMuscular === grupoSeleccionado;
-
-    return coincideBusqueda && coincideGrupo;
+  const [dificultadSeleccionada, setDificultadSeleccionada] =
+    useState("Todas");
+  const [equipamientoSeleccionado, setEquipamientoSeleccionado] =
+    useState("Todos");
+  const [soloConVideo, setSoloConVideo] = useState(false);
+  const [favoritos, setFavoritos] = useState<string[]>(() => {
+    const guardados = localStorage.getItem(CLAVE_FAVORITOS);
+    return guardados ? JSON.parse(guardados) : [];
   });
 
-  const ejerciciosAgrupadosFiltrados =
-    ejerciciosFiltrados.reduce<Record<string, Ejercicio[]>>(
-      (grupos, ejercicio) => {
-        if (!grupos[ejercicio.grupoMuscular]) {
-          grupos[ejercicio.grupoMuscular] = [];
-        }
+  useEffect(() => {
+    localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
+  }, [favoritos]);
 
-        grupos[ejercicio.grupoMuscular].push(ejercicio);
-
-        return grupos;
-      },
-      {}
-    );
-
-  const gruposOrdenados = Object.entries(ejerciciosAgrupadosFiltrados).sort(
-    ([grupoA], [grupoB]) => {
-      if (grupoA === "Otros") return 1;
-      if (grupoB === "Otros") return -1;
-
-      return grupoA.localeCompare(grupoB);
-    }
+  const todasDificultades = useMemo(
+    () => ["Todas", ...new Set(ejercicios.map((ejercicio) => ejercicio.dificultad))],
+    []
   );
 
-  const todosLosGrupos = Array.from(
-    new Set(ejercicios.map((ejercicio) => ejercicio.grupoMuscular))
-  ).sort((grupoA, grupoB) => {
-    if (grupoA === "Otros") return 1;
-    if (grupoB === "Otros") return -1;
+  const todosLosGrupos = useMemo(() => {
+    return [
+      "Todos",
+      ...Array.from(new Set(ejercicios.map((ejercicio) => ejercicio.grupoMuscular))).sort(
+        (a, b) => {
+          if (a === "Otros") return 1;
+          if (b === "Otros") return -1;
+          return a.localeCompare(b);
+        }
+      ),
+    ];
+  }, []);
 
-    return grupoA.localeCompare(grupoB);
-  });
+  const todosLosEquipamientos = useMemo(() => {
+    const valores = ejercicios.flatMap((ejercicio) => ejercicio.equipamiento ?? []);
+    return ["Todos", ...Array.from(new Set(valores)).sort()];
+  }, []);
 
-  const cantidadPorGrupo = ejercicios.reduce<Record<string, number>>(
-    (cantidades, ejercicio) => {
-      cantidades[ejercicio.grupoMuscular] =
-        (cantidades[ejercicio.grupoMuscular] ?? 0) + 1;
+  const ejerciciosFiltrados = useMemo(
+    () =>
+      ejercicios.filter((ejercicio) => {
+        const termino = busqueda.toLowerCase().trim();
+        const coincideBusqueda =
+          termino.length === 0 ||
+          ejercicio.nombre.toLowerCase().includes(termino) ||
+          ejercicio.grupoMuscular.toLowerCase().includes(termino) ||
+          ejercicio.equipamiento?.some((equipo) =>
+            equipo.toLowerCase().includes(termino)
+          );
 
-      return cantidades;
-    },
-    {}
+        const coincideGrupo =
+          grupoSeleccionado === "Todos" ||
+          ejercicio.grupoMuscular === grupoSeleccionado;
+
+        const coincideDificultad =
+          dificultadSeleccionada === "Todas" ||
+          ejercicio.dificultad === dificultadSeleccionada;
+
+        const coincideEquipamiento =
+          equipamientoSeleccionado === "Todos" ||
+          ejercicio.equipamiento?.includes(equipamientoSeleccionado);
+
+        const coincideVideo = !soloConVideo || Boolean(ejercicio.youtubeId);
+
+        return (
+          coincideBusqueda &&
+          coincideGrupo &&
+          coincideDificultad &&
+          coincideEquipamiento &&
+          coincideVideo
+        );
+      }),
+    [busqueda, grupoSeleccionado, dificultadSeleccionada, equipamientoSeleccionado, soloConVideo]
+  );
+
+  const ejerciciosFavoritos = useMemo(
+    () =>
+      ejercicios.filter((ejercicio) => favoritos.includes(ejercicio.id)),
+    [favoritos]
+  );
+
+  const ejerciciosVisibles = useMemo(
+    () => (pantalla === "favoritos" ? ejerciciosFavoritos : ejerciciosFiltrados),
+    [pantalla, ejerciciosFavoritos, ejerciciosFiltrados]
+  );
+
+  const ejerciciosAgrupadosFiltrados = useMemo(
+    () =>
+      ejerciciosVisibles.reduce<Record<string, Ejercicio[]>>(
+        (grupos, ejercicio) => {
+          if (!grupos[ejercicio.grupoMuscular]) {
+            grupos[ejercicio.grupoMuscular] = [];
+          }
+
+          grupos[ejercicio.grupoMuscular].push(ejercicio);
+          return grupos;
+        },
+        {}
+      ),
+    [ejerciciosVisibles]
+  );
+
+  const gruposOrdenados = useMemo(
+    () =>
+      Object.entries(ejerciciosAgrupadosFiltrados).sort(
+        ([grupoA], [grupoB]) => {
+          if (grupoA === "Otros") return 1;
+          if (grupoB === "Otros") return -1;
+          return grupoA.localeCompare(grupoB);
+        }
+      ),
+    [ejerciciosAgrupadosFiltrados]
   );
 
   function irAEjercicios() {
@@ -76,8 +133,38 @@ function App() {
     setEjercicioSeleccionado(null);
   }
 
+  function irAFavoritos() {
+    setPantalla("favoritos");
+    setEjercicioSeleccionado(null);
+  }
+
   function irARutinas() {
     setPantalla("rutinas");
+    setEjercicioSeleccionado(null);
+  }
+
+  function limpiarFiltros() {
+    setBusqueda("");
+    setGrupoSeleccionado("Todos");
+    setDificultadSeleccionada("Todas");
+    setEquipamientoSeleccionado("Todos");
+    setSoloConVideo(false);
+    setEjercicioSeleccionado(null);
+  }
+
+  function toggleFavorito(ejercicioId: string) {
+    setFavoritos((actuales) =>
+      actuales.includes(ejercicioId)
+        ? actuales.filter((id) => id !== ejercicioId)
+        : [...actuales, ejercicioId]
+    );
+  }
+
+  function abrirEjercicio(ejercicio: Ejercicio) {
+    setEjercicioSeleccionado(ejercicio);
+  }
+
+  function cerrarEjercicio() {
     setEjercicioSeleccionado(null);
   }
 
@@ -88,6 +175,7 @@ function App() {
 
         <nav className="sidebar-grupos">
           <button
+            type="button"
             onClick={irAEjercicios}
             className={pantalla === "ejercicios" ? "activo" : ""}
           >
@@ -95,86 +183,170 @@ function App() {
           </button>
 
           <button
+            type="button"
+            onClick={irAFavoritos}
+            className={pantalla === "favoritos" ? "activo" : ""}
+          >
+            Favoritos
+          </button>
+
+          <button
+            type="button"
             onClick={irARutinas}
             className={pantalla === "rutinas" ? "activo" : ""}
           >
             Mis rutinas
           </button>
         </nav>
-
-        {pantalla === "ejercicios" && !ejercicioSeleccionado && (
-          <>
-            <div className="buscador">
-              <input
-                type="text"
-                placeholder="Buscar ejercicio..."
-                value={busqueda}
-                onChange={(event) => setBusqueda(event.target.value)}
-              />
-            </div>
-
-            <nav className="sidebar-grupos">
-              <button
-                onClick={() => setGrupoSeleccionado(null)}
-                className={grupoSeleccionado === null ? "activo" : ""}
-              >
-                <span>Todos</span>
-                <span className="contador-grupo">{ejercicios.length}</span>
-              </button>
-
-              {todosLosGrupos.map((grupo) => (
-                <button
-                  key={grupo}
-                  onClick={() => setGrupoSeleccionado(grupo)}
-                  className={grupoSeleccionado === grupo ? "activo" : ""}
-                >
-                  <span>{grupo}</span>
-                  <span className="contador-grupo">
-                    {cantidadPorGrupo[grupo] ?? 0}
-                  </span>
-                </button>
-              ))}
-            </nav>
-          </>
-        )}
       </aside>
 
       <main className="contenido">
-        {pantalla === "rutinas" ? (
-          <MisRutinas />
-        ) : !ejercicioSeleccionado ? (
-          <div className="grupos-ejercicios">
-            {gruposOrdenados.map(([grupo, ejerciciosDelGrupo]) => (
-              <section key={grupo} className="grupo-ejercicios">
-                <h2>
-                  {grupo}
-                  <span className="contador-titulo">
-                    {ejerciciosDelGrupo.length}
-                  </span>
-                </h2>
+        {(pantalla === "ejercicios" || pantalla === "favoritos") && (
+          <div className="panel panel-filtros">
+            <div className="buscador">
+              <input
+                type="text"
+                placeholder={
+                  pantalla === "favoritos"
+                    ? "Buscar favoritos..."
+                    : "Buscar ejercicio..."
+                }
+                value={busqueda}
+                onChange={(event) => {
+                  setBusqueda(event.target.value);
+                  setEjercicioSeleccionado(null);
+                }}
+              />
+            </div>
 
-                <div className="grilla-ejercicios">
-                  {ejerciciosDelGrupo.map((ejercicio) => (
-                    <div
-                      key={ejercicio.id}
-                      onClick={() => setEjercicioSeleccionado(ejercicio)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <TarjetaEjercicio ejercicio={ejercicio} />
-                    </div>
+            <div className="filtros-avanzados filtros-grid">
+              <label>
+                Grupo muscular
+                <select
+                  value={grupoSeleccionado}
+                  onChange={(event) => setGrupoSeleccionado(event.target.value)}
+                >
+                  {todosLosGrupos.map((grupo) => (
+                    <option key={grupo} value={grupo}>
+                      {grupo}
+                    </option>
                   ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        ) : (
-          <div style={{ marginTop: "30px" }}>
-            <button className="boton-volver" onClick={irAEjercicios}>
-              ← Volver a ejercicios
-            </button>
+                </select>
+              </label>
 
-            <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
+              <label>
+                Dificultad
+                <select
+                  value={dificultadSeleccionada}
+                  onChange={(event) => setDificultadSeleccionada(event.target.value)}
+                >
+                  {todasDificultades.map((dificultad) => (
+                    <option key={dificultad} value={dificultad}>
+                      {dificultad}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                Equipamiento
+                <select
+                  value={equipamientoSeleccionado}
+                  onChange={(event) => setEquipamientoSeleccionado(event.target.value)}
+                >
+                  {todosLosEquipamientos.map((equipo) => (
+                    <option key={equipo} value={equipo}>
+                      {equipo}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="filtro-toggle">
+                <input
+                  type="checkbox"
+                  checked={soloConVideo}
+                  onChange={(event) => setSoloConVideo(event.target.checked)}
+                />
+                Solo con video
+              </label>
+
+              <button
+                type="button"
+                className="boton-secundario boton-borrar-filtros"
+                onClick={limpiarFiltros}
+              >
+                Borrar filtros
+              </button>
+            </div>
           </div>
+        )}
+
+        {ejercicioSeleccionado ? (
+          <section className="detalle-contenedor">
+            <button type="button" className="boton-volver" onClick={cerrarEjercicio}>
+              ← Volver a la lista
+            </button>
+            <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
+          </section>
+        ) : pantalla === "rutinas" ? (
+          <MisRutinas />
+        ) : (
+          <>
+            <div className="panel resumen-filtro">
+              <p>
+                {ejerciciosVisibles.length} ejercicios encontrados
+                {soloConVideo ? " (solo con video)" : ""}
+              </p>
+              <p>
+                {pantalla === "favoritos"
+                  ? "Favoritos"
+                  : "Listado de ejercicios"}
+              </p>
+            </div>
+
+            {gruposOrdenados.length === 0 ? (
+              <div className="sin-resultados">
+                <p>No encontramos ejercicios para esos filtros.</p>
+              </div>
+            ) : (
+              <div className="grupos-ejercicios">
+                {gruposOrdenados.map(([grupo, ejerciciosDelGrupo]) => (
+                  <section key={grupo} className="grupo-ejercicios">
+                    <h2>
+                      {grupo}
+                      <span className="contador-titulo">
+                        {ejerciciosDelGrupo.length}
+                      </span>
+                    </h2>
+
+                    <div className="grilla-ejercicios">
+                      {ejerciciosDelGrupo.map((ejercicio) => (
+                        <div
+                          key={ejercicio.id}
+                          className="tarjeta-clickable"
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => abrirEjercicio(ejercicio)}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              abrirEjercicio(ejercicio);
+                            }
+                          }}
+                        >
+                          <TarjetaEjercicio
+                            ejercicio={ejercicio}
+                            favorito={favoritos.includes(ejercicio.id)}
+                            onToggleFavorito={toggleFavorito}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

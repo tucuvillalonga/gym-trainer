@@ -29,7 +29,10 @@ export type Ejercicio = {
   imagen: string;
   grupoMuscular: string;
   musculoPrincipal: RegionMuscular;
-  dificultad: string;
+  dificultad: "Principiante" | "Intermedio" | "Avanzado";
+  equipamiento?: string[];
+  objetivo?: "Fuerza" | "Hipertrofia" | "Resistencia";
+  tipoEjercicio?: "Compuesto" | "Aislamiento";
   youtubeId: string;
   urlFuente?: string;
 

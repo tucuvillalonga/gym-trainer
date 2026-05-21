@@ -6,14 +6,41 @@ type Props = {
 };
 
 function DetalleEjercicio({ ejercicio }: Props) {
-
   return (
     <section className="detalle">
       <div className="detalle-header">
         <div>
-          <span className="tag">{ejercicio.grupoMuscular}</span>
+          <div className="detalle-meta">
+            <span className="tag">{ejercicio.grupoMuscular}</span>
+            <span className="detalle-chip">{ejercicio.dificultad}</span>
+            {ejercicio.tipoEjercicio && (
+              <span className="detalle-chip">{ejercicio.tipoEjercicio}</span>
+            )}
+            {ejercicio.objetivo && (
+              <span className="detalle-chip">{ejercicio.objetivo}</span>
+            )}
+          </div>
           <h2>{ejercicio.nombre}</h2>
           <p>{ejercicio.descripcion}</p>
+
+          {ejercicio.equipamiento?.length ? (
+            <p className="detalle-equipo">
+              <strong>Equipamiento:</strong> {ejercicio.equipamiento.join(", ")}
+            </p>
+          ) : null}
+
+          {ejercicio.urlFuente ? (
+            <p>
+              <a
+                href={ejercicio.urlFuente}
+                target="_blank"
+                rel="noreferrer"
+                className="detalle-enlace"
+              >
+                Ver fuente del ejercicio
+              </a>
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -24,7 +51,7 @@ function DetalleEjercicio({ ejercicio }: Props) {
           {ejercicio.youtubeId ? (
             <div className="video-wrapper">
               <iframe
-                src={`https://www.youtube.com/embed/${ejercicio.youtubeId}`}
+                src={`https://www.youtube-nocookie.com/embed/${ejercicio.youtubeId}`}
                 title={`Video tutorial de ${ejercicio.nombre}`}
                 allowFullScreen
               />

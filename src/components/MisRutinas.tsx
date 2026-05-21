@@ -17,32 +17,28 @@ function MisRutinas() {
   const [rutinaActivaId, setRutinaActivaId] = useState<string | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
-  const [, setMostrarMenu] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
 
-  const rutinaActiva = rutinas.find(
-    (rutina) => rutina.id === rutinaActivaId
-  );
+  const rutinaActiva = rutinas.find((rutina) => rutina.id === rutinaActivaId);
+
   function borrarRutinaActiva() {
-  if (!rutinaActiva) {
-    return;
+    if (!rutinaActiva) {
+      return;
+    }
+
+    const confirmar = window.confirm(
+      `¿Seguro que querés eliminar "${rutinaActiva.nombre}"?`
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    eliminarRutina(rutinaActiva.id);
+    setRutinaActivaId(null);
+    setModoEdicion(false);
+    setBusqueda("");
   }
-
-  const confirmar = window.confirm(
-    `¿Seguro que querés eliminar "${rutinaActiva.nombre}"?`
-  );
-
-  if (!confirmar) {
-    return;
-  }
-
-  eliminarRutina(rutinaActiva.id);
-
-  setRutinaActivaId(null);
-  setModoEdicion(false);
-  setMostrarMenu(false);
-  setBusqueda("");
-}
 
   const ejerciciosDisponibles = ejercicios.filter((ejercicio) => {
     if (!rutinaActiva) return false;
@@ -52,20 +48,14 @@ function MisRutinas() {
     );
 
     const coincideBusqueda =
-      ejercicio.nombre
-        .toLowerCase()
-        .includes(busqueda.toLowerCase()) ||
-      ejercicio.grupoMuscular
-        .toLowerCase()
-        .includes(busqueda.toLowerCase());
+      ejercicio.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      ejercicio.grupoMuscular.toLowerCase().includes(busqueda.toLowerCase());
 
     return !yaAgregado && coincideBusqueda;
   });
 
   if (rutinaActiva) {
-    const mostrarPanelAgregar =
-        modoEdicion ||
-        rutinaActiva.ejercicios.length === 0;
+    const mostrarPanelAgregar = modoEdicion || rutinaActiva.ejercicios.length === 0;
 
     return (
       <section className="pantalla-rutinas detalle-rutina-activa">
@@ -75,7 +65,6 @@ function MisRutinas() {
             setRutinaActivaId(null);
             setModoEdicion(false);
             setBusqueda("");
-            setMostrarMenu(false);
           }}
         >
           ← Volver a mis rutinas
@@ -83,255 +72,172 @@ function MisRutinas() {
 
         <div className="detalle-header rutina-header">
           {modoEdicion ? (
-  <div className="editar-rutina-inline">
-    <input
-      value={nuevoNombre}
-      onChange={(e) =>
-        setNuevoNombre(e.target.value)
-      }
-    />
+            <div className="editar-rutina-inline">
+              <input
+                value={nuevoNombre}
+                onChange={(e) => setNuevoNombre(e.target.value)}
+              />
 
-    <button
-      onClick={() => {
-        if (!nuevoNombre.trim()) {
-          return;
-        }
+              <button
+                type="button"
+                onClick={() => {
+                  if (!nuevoNombre.trim()) {
+                    return;
+                  }
 
-        actualizarNombreRutina(
-            rutinaActiva.id,
-            nuevoNombre
-        );
+                  actualizarNombreRutina(rutinaActiva.id, nuevoNombre);
+                  setModoEdicion(false);
+                }}
+              >
+                Guardar nombre
+              </button>
 
-        setModoEdicion(false);
-      }}
-    >
-      Guardar nombre
-    </button>
+              <button
+                type="button"
+                className="boton-secundario"
+                onClick={() => {
+                  setModoEdicion(false);
+                }}
+              >
+                Terminar edición
+              </button>
+            </div>
+          ) : (
+            <>
+              <h2>{rutinaActiva.nombre}</h2>
+              <p>{rutinaActiva.ejercicios.length} ejercicios cargados</p>
+            </>
+          )}
+        </div>
 
-    <button
-      className="boton-secundario"
-      onClick={() => {
-        setModoEdicion(false);
+        <div className="menu-rutina">
+          <button
+            type="button"
+            className="boton-secundario"
+            onClick={() => {
+              setNuevoNombre(rutinaActiva.nombre);
+              setModoEdicion(true);
+            }}
+          >
+            Editar
+          </button>
 
-        setMostrarMenu(false);
-      }}
-    >
-      Terminar edición
-    </button>
-  </div>
-) : (
-  <>
-    <h2>{rutinaActiva.nombre}</h2>
+          <button
+            type="button"
+            className="boton-secundario eliminar"
+            onClick={borrarRutinaActiva}
+          >
+            Eliminar
+          </button>
+        </div>
 
-    <p>
-      {rutinaActiva.ejercicios.length}
-      {" "}ejercicios cargados
-    </p>
-  </>
-)}
- </div>
-<div className="menu-rutina">
-  <button
-    type="button"
-    className="boton-secundario"
-    onClick={() => {
-      setNuevoNombre(rutinaActiva.nombre);
-      setModoEdicion(true);
-      setMostrarMenu(false);
-    }}
-  >
-    Editar
-  </button>
-
-  <button
-    type="button"
-    className="boton-secundario eliminar"
-    onClick={borrarRutinaActiva}
-  >
-    Eliminar
-  </button>
-</div>
         <div className="rutina-detalle-grid">
           <div className="panel">
-            <h3>
-              Ejercicios de la rutina
-            </h3>
+            <h3>Ejercicios de la rutina</h3>
 
             <div className="rutina-ejercicios-lista">
               {rutinaActiva.ejercicios.length === 0 && (
-                <p>
-                  Todavía no agregaste ejercicios.
-                </p>
+                <p>Todavía no agregaste ejercicios.</p>
               )}
 
-              {rutinaActiva.ejercicios.map(
-                (item) => {
-                  const ejercicio =
-                    ejercicios.find(
-                      (ejercicio) =>
-                        ejercicio.id ===
-                        item.ejercicioId
-                    );
+              {rutinaActiva.ejercicios.map((item) => {
+                const ejercicio = ejercicios.find(
+                  (ejercicio) => ejercicio.id === item.ejercicioId
+                );
 
-                  if (!ejercicio) {
-                    return null;
-                  }
-
-                  return (
-                    <div
-                      key={item.ejercicioId}
-                      className="rutina-ejercicio-card"
-                    >
-                      <img
-                        src={ejercicio.imagen}
-                        alt={ejercicio.nombre}
-                      />
-
-                      <div className="rutina-ejercicio-info">
-                        <h4>
-                          {ejercicio.nombre}
-                        </h4>
-
-                        <span>
-                          {
-                            ejercicio.grupoMuscular
-                          }
-                        </span>
-
-                        <div className="rutina-campos">
-                          <label>
-                            Series
-                        
-
-                            <input
-                              type="number"
-                              value={item.series}
-                              disabled={!modoEdicion}
-                              onChange={(e) =>
-                                actualizarEjercicioDeRutina(
-                                  rutinaActiva.id,
-                                  item.ejercicioId,
-                                  {
-                                    series:
-                                      Number(
-                                        e.target
-                                          .value
-                                      ),
-                                  }
-                                )
-                              }
-                            />
-                          </label>
-
-                          <label>
-                            Reps
-
-                            <input
-                              type="number"
-                              value={
-                                item.repeticiones
-                              }
-                              disabled={!modoEdicion}
-                              onChange={(e) =>
-                                actualizarEjercicioDeRutina(
-                                  rutinaActiva.id,
-                                  item.ejercicioId,
-                                  {
-                                    repeticiones:
-                                      Number(
-                                        e.target
-                                          .value
-                                      ),
-                                  }
-                                )
-                              }
-                            />
-                          </label>
-
-                          <label>
-                            Peso
-
-                            <input
-                              type="number"
-                              value={item.peso}
-                              disabled={!modoEdicion}
-                              onChange={(e) =>
-                                actualizarEjercicioDeRutina(
-                                  rutinaActiva.id,
-                                  item.ejercicioId,
-                                  {
-                                    peso:
-                                      Number(
-                                        e.target
-                                          .value
-                                      ),
-                                  }
-                                )
-                              }
-                            />
-                          </label>
-
-                          <label>
-                            Tipo
-
-                            <select
-                              value={
-                                item.tipoPeso
-                              }
-                                disabled={!modoEdicion}
-                              onChange={(e) =>
-                                actualizarEjercicioDeRutina(
-                                  rutinaActiva.id,
-                                  item.ejercicioId,
-                                  {
-                                    tipoPeso:
-                                      e.target
-                                        .value as
-                                        | "total"
-                                        | "por mancuerna"
-                                        | "polea"
-                                        | "corporal",
-                                  }
-                                )
-                              }
-                            >
-                              <option value="total">
-                                Total
-                              </option>
-
-                              <option value="por mancuerna">
-                                Por mancuerna
-                              </option>
-
-                              <option value="polea">
-                                Polea
-                              </option>
-
-                              <option value="corporal">
-                                Corporal
-                              </option>
-                            </select>
-                          </label>
-                        </div>
-
-                        {modoEdicion && (
-                            <button
-                                className="boton-secundario"
-                                onClick={() =>
-                                eliminarEjercicioDeRutina(
-                                    rutinaActiva.id,
-                                    item.ejercicioId
-                                )
-                                }
-                            >
-                                Sacar
-                            </button>
-                            )}
-                      </div>
-                    </div>
-                  );
+                if (!ejercicio) {
+                  return null;
                 }
-              )}
+
+                return (
+                  <div key={item.ejercicioId} className="rutina-ejercicio-card">
+                    <img src={ejercicio.imagen} alt={ejercicio.nombre} />
+
+                    <div className="rutina-ejercicio-info">
+                      <h4>{ejercicio.nombre}</h4>
+                      <span>{ejercicio.grupoMuscular}</span>
+
+                      <div className="rutina-campos">
+                        <label>
+                          Series
+                          <input
+                            type="number"
+                            value={item.series}
+                            disabled={!modoEdicion}
+                            onChange={(e) =>
+                              actualizarEjercicioDeRutina(rutinaActiva.id, item.ejercicioId, {
+                                series: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Reps
+                          <input
+                            type="number"
+                            value={item.repeticiones}
+                            disabled={!modoEdicion}
+                            onChange={(e) =>
+                              actualizarEjercicioDeRutina(rutinaActiva.id, item.ejercicioId, {
+                                repeticiones: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Peso
+                          <input
+                            type="number"
+                            value={item.peso}
+                            disabled={!modoEdicion}
+                            onChange={(e) =>
+                              actualizarEjercicioDeRutina(rutinaActiva.id, item.ejercicioId, {
+                                peso: Number(e.target.value),
+                              })
+                            }
+                          />
+                        </label>
+
+                        <label>
+                          Tipo
+                          <select
+                            value={item.tipoPeso}
+                            disabled={!modoEdicion}
+                            onChange={(e) =>
+                              actualizarEjercicioDeRutina(rutinaActiva.id, item.ejercicioId, {
+                                tipoPeso: e.target.value as
+                                  | "total"
+                                  | "por mancuerna"
+                                  | "polea"
+                                  | "corporal",
+                              })
+                            }
+                          >
+                            <option value="total">Total</option>
+                            <option value="por mancuerna">Por mancuerna</option>
+                            <option value="polea">Polea</option>
+                            <option value="corporal">Corporal</option>
+                          </select>
+                        </label>
+                      </div>
+
+                      {modoEdicion && (
+                        <button
+                          type="button"
+                          className="boton-secundario"
+                          onClick={() =>
+                            eliminarEjercicioDeRutina(rutinaActiva.id, item.ejercicioId)
+                          }
+                        >
+                          Sacar
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -345,51 +251,26 @@ function MisRutinas() {
                     type="text"
                     placeholder="Buscar por ejercicio o músculo..."
                     value={busqueda}
-                    onChange={(e) =>
-                      setBusqueda(
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => setBusqueda(e.target.value)}
                   />
                 </div>
 
                 <div className="lista-agregar-ejercicios">
-                  {ejerciciosDisponibles.map(
-                    (ejercicio) => (
-                      <div
-                        key={ejercicio.id}
-                        className="fila-ejercicio-rutina"
-                      >
-                        <div className="fila-ejercicio-info">
-                          <img
-                            src={
-                              ejercicio.imagen
-                            }
-                            alt={
-                              ejercicio.nombre
-                            }
-                          />
-
-                          <span>
-                            {
-                              ejercicio.nombre
-                            }
-                          </span>
-                        </div>
-
-                        <button
-                          onClick={() =>
-                            agregarEjercicioARutina(
-                              rutinaActiva.id,
-                              ejercicio.id
-                            )
-                          }
-                        >
-                          Agregar
-                        </button>
+                  {ejerciciosDisponibles.map((ejercicio) => (
+                    <div key={ejercicio.id} className="fila-ejercicio-rutina">
+                      <div className="fila-ejercicio-info">
+                        <img src={ejercicio.imagen} alt={ejercicio.nombre} />
+                        <span>{ejercicio.nombre}</span>
                       </div>
-                    )
-                  )}
+
+                      <button
+                        type="button"
+                        onClick={() => agregarEjercicioARutina(rutinaActiva.id, ejercicio.id)}
+                      >
+                        Agregar
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -407,19 +288,17 @@ function MisRutinas() {
         <input
           value={nombre}
           placeholder="Ej: Push"
-          onChange={(e) =>
-            setNombre(e.target.value)
-          }
+          onChange={(e) => setNombre(e.target.value)}
         />
 
         <button
+          type="button"
           onClick={() => {
             if (!nombre.trim()) {
               return;
             }
 
             crearRutina(nombre);
-
             setNombre("");
           }}
         >
@@ -432,16 +311,10 @@ function MisRutinas() {
           <div
             key={rutina.id}
             className="panel rutina-card-clickeable"
-            onClick={() =>
-              setRutinaActivaId(rutina.id)
-            }
+            onClick={() => setRutinaActivaId(rutina.id)}
           >
             <h3>{rutina.nombre}</h3>
-
-            <p>
-              {rutina.ejercicios.length}
-              {" "}ejercicios
-            </p>
+            <p>{rutina.ejercicios.length} ejercicios</p>
           </div>
         ))}
       </div>
