@@ -27,6 +27,7 @@ const nombresRegion: Record<RegionMuscular, string> = {
   deltoides: "Deltoides",
   biceps: "Biceps",
   triceps: "Triceps",
+  antebrazos: "Antebrazos",
   abdominales: "Abdominales",
   oblicuos: "Oblicuos",
   cuadriceps: "Cuadriceps",
@@ -227,6 +228,16 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
                 d="M156 300 C141 306 133 325 136 352 L142 407 C144 423 162 423 165 407 L172 348 C175 325 169 307 156 300Z"
               />
               <PiezaMuscular
+                region="antebrazos"
+                color={coloresPorNivel.inactivo}
+                d="M53 252 C64 259 71 269 69 286 L64 337 C61 351 47 350 45 336 L39 284 C37 269 42 258 53 252Z"
+              />
+              <PiezaMuscular
+                region="antebrazos"
+                color={coloresPorNivel.inactivo}
+                d="M207 252 C196 259 189 269 191 286 L196 337 C199 351 213 350 215 336 L221 284 C223 269 218 258 207 252Z"
+              />
+              <PiezaMuscular
                 region="pantorrillas"
                 color={coloresPorNivel.inactivo}
                 d="M96 405 C107 411 114 425 111 444 L108 458 H88 L91 431 C92 420 93 412 96 405Z"
@@ -302,6 +313,16 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
                 region="triceps"
                 color={coloresPorNivel.inactivo}
                 d="M205 161 C190 159 180 167 180 188 L184 248 C186 262 202 262 207 249 L215 195 C217 178 213 167 205 161Z"
+              />
+              <PiezaMuscular
+                region="antebrazos"
+                color={coloresPorNivel.inactivo}
+                d="M53 253 C64 260 71 270 69 287 L64 337 C61 351 47 350 45 336 L39 285 C37 270 42 259 53 253Z"
+              />
+              <PiezaMuscular
+                region="antebrazos"
+                color={coloresPorNivel.inactivo}
+                d="M207 253 C196 260 189 270 191 287 L196 337 C199 351 213 350 215 336 L221 285 C223 270 218 259 207 253Z"
               />
               <PiezaMuscular
                 color={coloresPorNivel.inactivo}

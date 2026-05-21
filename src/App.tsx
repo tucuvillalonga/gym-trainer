@@ -1,19 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { ejercicios } from "./data/ejercicios";
 import type { Ejercicio } from "./types/ejercicio";
+import type { Rutina } from "./types/rutina";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
 import DetalleEjercicio from "./components/DetalleEjercicio";
 import MisRutinas from "./components/MisRutinas";
+import Dashboard from "./components/Dashboard";
+import Perfil from "./components/Perfil";
+import WorkoutRunner from "./components/WorkoutRunner";
 
 const CLAVE_FAVORITOS = "gym-trainer-favoritos";
 
 function App() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] =
     useState<Ejercicio | null>(null);
+  const [rutinaEnProgreso, setRutinaEnProgreso] = useState<Rutina | null>(null);
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
-  const [pantalla, setPantalla] = useState<"ejercicios" | "favoritos" | "rutinas">(
-    "ejercicios"
+  const [pantalla, setPantalla] = useState<"inicio" | "ejercicios" | "favoritos" | "rutinas" | "perfil">(
+    "inicio"
   );
   const [dificultadSeleccionada, setDificultadSeleccionada] =
     useState("Todas");
@@ -143,6 +148,11 @@ function App() {
     setEjercicioSeleccionado(null);
   }
 
+  function irAPerfil() {
+    setPantalla("perfil");
+    setEjercicioSeleccionado(null);
+  }
+
   function limpiarFiltros() {
     setBusqueda("");
     setGrupoSeleccionado("Todos");
@@ -168,12 +178,27 @@ function App() {
     setEjercicioSeleccionado(null);
   }
 
+  function iniciarEntrenamiento(rutina: Rutina) {
+    setRutinaEnProgreso(rutina);
+  }
+
+  function finalizarEntrenamiento() {
+    setRutinaEnProgreso(null);
+  }
+
   return (
     <div className="layout">
       <aside className="sidebar">
         <h1 className="logo">Gym Trainer</h1>
 
         <nav className="sidebar-grupos">
+          <button
+            type="button"
+            onClick={() => setPantalla("inicio")}
+            className={pantalla === "inicio" ? "activo" : ""}
+          >
+            Inicio
+          </button>
           <button
             type="button"
             onClick={irAEjercicios}
@@ -201,7 +226,29 @@ function App() {
       </aside>
 
       <main className="contenido">
-        {(pantalla === "ejercicios" || pantalla === "favoritos") && (
+        <div className="topbar">
+          <div className="topbar-title">
+            {pantalla === "inicio" && "Inicio"}
+            {pantalla === "ejercicios" && "Ejercicios"}
+            {pantalla === "favoritos" && "Favoritos"}
+            {pantalla === "rutinas" && "Mis rutinas"}
+            {pantalla === "perfil" && "Perfil"}
+          </div>
+          <button className="perfil-avatar" type="button" onClick={irAPerfil} aria-label="Abrir perfil">
+            <span>👤</span>
+          </button>
+        </div>
+
+        {rutinaEnProgreso ? (
+          <WorkoutRunner
+            rutina={rutinaEnProgreso}
+            onFinish={finalizarEntrenamiento}
+            onCancel={finalizarEntrenamiento}
+          />
+        ) : pantalla === "inicio" ? (
+          <Dashboard irAEjercicios={irAEjercicios} irARutinas={irARutinas} onEmpezar={iniciarEntrenamiento} />
+        ) : (
+          (pantalla === "ejercicios" || pantalla === "favoritos") && (
           <div className="panel panel-filtros">
             <div className="buscador">
               <input
@@ -280,6 +327,7 @@ function App() {
               </button>
             </div>
           </div>
+          )
         )}
 
         {ejercicioSeleccionado ? (
@@ -291,7 +339,9 @@ function App() {
           </section>
         ) : pantalla === "rutinas" ? (
           <MisRutinas />
-        ) : (
+        ) : pantalla === "perfil" ? (
+          <Perfil />
+        ) : (pantalla === "ejercicios" || pantalla === "favoritos") && (
           <>
             <div className="panel resumen-filtro">
               <p>

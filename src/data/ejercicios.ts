@@ -82,8 +82,10 @@ if (
 ) {
   return {
     grupoMuscular: "Otros",
-    musculoPrincipal: "abdominales" as const,
-    mapaDeEnfoque: [],
+    musculoPrincipal: "antebrazos" as const,
+    mapaDeEnfoque: [
+      { region: "antebrazos" as const, nivel: "principal" as const },
+    ],
   };
 }
 
@@ -109,6 +111,19 @@ if (
   texto.includes("pullover con mancuerna")
 ) {
   return espalda();
+}
+
+if (
+  texto.includes("encogimiento de hombros") ||
+  texto.includes("shrug")
+) {
+  return {
+    grupoMuscular: "Otros",
+    musculoPrincipal: "trapecios" as const,
+    mapaDeEnfoque: [
+      { region: "trapecios" as const, nivel: "principal" as const },
+    ],
+  };
 }
 
 if (

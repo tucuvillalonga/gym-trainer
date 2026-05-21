@@ -8,6 +8,7 @@ export type RegionMuscular =
   | "deltoides"
   | "biceps"
   | "triceps"
+  | "antebrazos"
   | "abdominales"
   | "oblicuos"
   | "cuadriceps"

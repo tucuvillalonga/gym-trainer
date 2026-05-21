@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useRutinas } from "../hooks/useRutinas";
+import { useHistorial } from "../hooks/useHistorial";
 
 function MisRutinas() {
   const {
@@ -12,6 +13,7 @@ function MisRutinas() {
     eliminarEjercicioDeRutina,
     actualizarNombreRutina,
   } = useRutinas();
+  const { registrarEntrenamiento } = useHistorial();
 
   const [nombre, setNombre] = useState("");
   const [rutinaActivaId, setRutinaActivaId] = useState<string | null>(null);
@@ -56,6 +58,12 @@ function MisRutinas() {
 
   if (rutinaActiva) {
     const mostrarPanelAgregar = modoEdicion || rutinaActiva.ejercicios.length === 0;
+
+    function completarRutina() {
+      if (!rutinaActiva) return;
+      registrarEntrenamiento(rutinaActiva);
+      alert(`Rutina "${rutinaActiva.nombre}" registrada como completada.`);
+    }
 
     return (
       <section className="pantalla-rutinas detalle-rutina-activa">
@@ -120,6 +128,13 @@ function MisRutinas() {
             }}
           >
             Editar
+          </button>
+          <button
+            type="button"
+            className="boton-secundario"
+            onClick={completarRutina}
+          >
+            Completar
           </button>
 
           <button

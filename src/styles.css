@@ -365,6 +365,99 @@ button {
   align-items: end;
 }
 
+/* DASHBOARD */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 28px;
+  border-radius: 20px;
+}
+
+.hero-text h1 {
+  margin: 0;
+  font-size: 34px;
+}
+
+.hero-text .sub {
+  margin: 6px 0 0;
+  color: #94a3b8;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.card-large {
+  grid-column: span 2;
+}
+
+.cards-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.stat-card {
+  padding: 18px;
+  text-align: center;
+}
+
+.progress {
+  height: 12px;
+  background: #0f172a;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #60a5fa);
+}
+
+.racha {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.muscle-chips .chip {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  margin-right: 8px;
+}
+
+.ultimos-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ultimos-lista li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed #0f172a;
+}
+
+.quick-actions .actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .detalle-contenedor {
   margin-bottom: 32px;
 }
@@ -1305,6 +1398,121 @@ button {
   box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15);
 }
 
+/* PERFIL */
+
+.pantalla-perfil {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.pantalla-perfil h2 {
+  font-size: 28px;
+  margin-bottom: 32px;
+  color: white;
+}
+
+.perfil-info {
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #1e293b;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.info-item .value {
+  color: #60a5fa;
+  font-weight: 500;
+}
+
+.form-perfil {
+  border-radius: 24px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group:last-child {
+  margin-bottom: 32px;
+}
+
+.form-group label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #334155;
+  background: #111827;
+  color: white;
+  font-size: 15px;
+  outline: none;
+  transition: .2s;
+  margin-top: 8px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 5px rgba(37, 99, 235, 0.15);
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.form-actions button {
+  flex: 1;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: .2s;
+}
+
+.pantalla-perfil > button {
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 600;
+  font-size: 15px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.pantalla-perfil > button:hover {
+  background: #1d4ed8;
+}
+
 .editar-rutina-inline button {
   height: 52px;
   padding: 0 18px;
@@ -1375,4 +1583,205 @@ button {
 
 .lista-musculos::-webkit-scrollbar-thumb:hover {
   background: rgba(96, 165, 250, 0.55);
+}
+
+/* WORKOUT RUNNER */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.topbar-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.perfil-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(96, 165, 250, 0.4);
+  background: #0f172a;
+  color: #60a5fa;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  transition: transform .2s, background .2s, border-color .2s;
+}
+
+.perfil-avatar:hover {
+  transform: translateY(-1px);
+  border-color: #60a5fa;
+  background: #111827;
+}
+
+.workout-runner {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.workout-header {
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.workout-header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.workout-header h2 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
+  color: white;
+}
+
+.workout-header .muted {
+  margin: 0;
+  font-size: 14px;
+}
+
+.workout-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.ejercicio-display {
+  border-radius: 24px;
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+  padding: 32px;
+}
+
+.ejercicio-display img {
+  width: 280px;
+  height: 280px;
+  border-radius: 20px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.ejercicio-display h3 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  color: white;
+}
+
+.ejercicio-display .grupo {
+  display: inline-block;
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+
+.parametros {
+  display: flex;
+  gap: 24px;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+
+.param {
+  text-align: center;
+}
+
+.param strong {
+  display: block;
+  font-size: 24px;
+  color: #60a5fa;
+  margin-bottom: 4px;
+}
+
+.param p {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.enlace-video {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: .2s;
+  border: none;
+}
+
+.enlace-video:hover {
+  background: #1d4ed8;
+}
+
+.workout-controles {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 32px;
+  border-radius: 24px;
+}
+
+.workout-controles button {
+  padding: 16px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: .2s;
+}
+
+.workout-controles button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.final-panel {
+  text-align: center;
+  padding: 40px;
+  border-radius: 24px;
+}
+
+.final-panel p {
+  font-size: 20px;
+  margin-bottom: 24px;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .ejercicio-display {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .ejercicio-display img {
+    width: 100%;
+    max-width: 280px;
+  }
+
+  .workout-controles {
+    flex-wrap: wrap;
+  }
+
+  .workout-controles button {
+    flex: 1;
+    min-width: 100px;
+  }
 }
