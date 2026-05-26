@@ -34,10 +34,49 @@ button {
 }
 
 .logo {
-  font-size: 34px;
-  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 32px;
-  color: white;
+}
+
+.logo-mark {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  border-radius: 18px;
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  background-image: url("/fitapp-logo.png");
+  background-size: 170%;
+  background-position: center 23%;
+  background-repeat: no-repeat;
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.18);
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1;
+}
+
+.logo-text strong {
+  color: #f8fafc;
+  font-size: 27px;
+  font-style: italic;
+  letter-spacing: 0.04em;
+}
+
+.logo-text strong span {
+  color: #1685ff;
+}
+
+.logo-text small {
+  margin-top: 6px;
+  color: #94a3b8;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 /* CONTENIDO */
@@ -2038,10 +2077,24 @@ button {
 
   .logo {
     margin: 0;
-    font-size: 34px;
+  }
+
+  .logo-mark {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .logo-text strong {
+    font-size: 24px;
+  }
+
+  .logo-text small {
+    display: none;
   }
 
   .sidebar-grupos {
+    display: grid;
     position: fixed;
     left: 12px;
     right: 12px;
@@ -2392,7 +2445,7 @@ button {
 
 @media (max-width: 380px) {
   .sidebar-grupos {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .contenido {

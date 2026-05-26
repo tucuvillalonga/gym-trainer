@@ -253,7 +253,13 @@ function App() {
   return (
     <div className="layout">
       <aside className="sidebar">
-        <h1 className="logo">Gym Trainer</h1>
+        <div className="logo">
+          <span className="logo-mark" aria-hidden="true" />
+          <span className="logo-text">
+            <strong>FIT<span>APP</span></strong>
+            <small>Entrena tu mejor version</small>
+          </span>
+        </div>
 
         <nav className="sidebar-grupos">
           <button
