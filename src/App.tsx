@@ -265,14 +265,16 @@ function App() {
             }}
             className={pantalla === "inicio" ? "activo" : ""}
           >
-            Inicio
+            <span className="nav-icon" aria-hidden="true">⌂</span>
+            <span>Inicio</span>
           </button>
           <button
             type="button"
             onClick={irAEjercicios}
             className={pantalla === "ejercicios" ? "activo" : ""}
           >
-            Ejercicios
+            <span className="nav-icon" aria-hidden="true">▦</span>
+            <span>Ejercicios</span>
           </button>
 
           <button
@@ -280,7 +282,8 @@ function App() {
             onClick={irARutinas}
             className={pantalla === "rutinas" ? "activo" : ""}
           >
-            Mis rutinas
+            <span className="nav-icon" aria-hidden="true">▤</span>
+            <span>Rutinas</span>
           </button>
         </nav>
       </aside>
