@@ -2010,3 +2010,365 @@ button {
     min-width: 100px;
   }
 }
+
+/* MOBILE */
+
+@media (max-width: 640px) {
+  body {
+    overflow-x: hidden;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    height: auto;
+    padding: 14px 14px 12px;
+    border-right: 0;
+    border-bottom: 1px solid #1e293b;
+  }
+
+  .logo {
+    margin: 0 0 12px;
+    font-size: 24px;
+  }
+
+  .sidebar-grupos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .sidebar-grupos button {
+    min-height: 44px;
+    padding: 10px 8px;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 13px;
+  }
+
+  .sidebar-grupos button:hover {
+    transform: none;
+  }
+
+  .contenido {
+    padding: 16px 14px 28px;
+  }
+
+  .topbar {
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .topbar-title {
+    min-width: 0;
+    font-size: 18px;
+  }
+
+  .perfil-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 auto;
+  }
+
+  .rutina-badge,
+  .rutina-badge-activo {
+    max-width: 150px;
+    margin-left: 0 !important;
+    padding: 6px;
+  }
+
+  .rutina-badge-bar {
+    width: 100px;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .hero-card,
+  .proxima-body,
+  .historial-header,
+  .historial-item,
+  .descanso-item,
+  .info-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-card {
+    gap: 16px;
+  }
+
+  .hero-text h1 {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .hero-actions,
+  .form-actions,
+  .menu-rutina {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .dashboard-grid,
+  .detalle-grid,
+  .rutina-detalle-grid,
+  .descanso-lista,
+  .rutinas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-large {
+    grid-column: auto;
+  }
+
+  .buscador {
+    margin-top: 14px;
+    margin-bottom: 16px;
+  }
+
+  .buscador input,
+  .crear-rutina input,
+  .form-group input,
+  .form-group select {
+    min-height: 46px;
+    border-radius: 14px;
+    font-size: 16px;
+  }
+
+  .filtros-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtro-toggle {
+    min-height: 44px;
+  }
+
+  .panel.resumen-filtro {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .grupo-ejercicios {
+    margin-bottom: 34px;
+  }
+
+  .grupo-ejercicios h2 {
+    font-size: 28px;
+    margin-bottom: 16px;
+  }
+
+  .grilla-ejercicios {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .tarjeta-ejercicio {
+    padding: 16px;
+    border-radius: 20px;
+  }
+
+  .tarjeta-ejercicio h2 {
+    font-size: 24px;
+    line-height: 1.15;
+  }
+
+  .descripcion {
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .imagen-ejercicio-lateral {
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+  }
+
+  .detalle-header h2 {
+    font-size: 30px;
+  }
+
+  .detalle-meta {
+    gap: 8px;
+  }
+
+  .mapa-muscular-header {
+    align-items: flex-start;
+  }
+
+  .mapa-leyenda {
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .mapa-vistas {
+    gap: 14px;
+  }
+
+  .mapa-vista {
+    padding: 12px;
+  }
+
+  .distribucion-muscular .figura-muscular,
+  .figura-muscular {
+    max-width: 220px;
+  }
+
+  .descanso-item p {
+    text-align: left;
+  }
+
+  .crear-rutina {
+    grid-template-columns: 1fr;
+    margin-top: 12px;
+  }
+
+  .rutina-card-clickeable h3 {
+    font-size: 26px;
+  }
+
+  .rutina-card-clickeable p {
+    font-size: 15px;
+  }
+
+  .detalle-rutina-activa .detalle-header {
+    margin-bottom: 16px;
+  }
+
+  .editar-rutina-inline {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .editar-rutina-inline input {
+    width: 100%;
+  }
+
+  .rutina-ejercicio-card {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .rutina-ejercicio-card img {
+    max-height: 220px;
+  }
+
+  .rutina-ejercicio-info h4 {
+    font-size: 22px;
+  }
+
+  .rutina-campos {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .panel-agregar-ejercicios {
+    position: static;
+  }
+
+  .lista-agregar-ejercicios {
+    max-height: 420px;
+  }
+
+  .fila-ejercicio-rutina {
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .fila-ejercicio-rutina button {
+    min-width: 0;
+  }
+
+  .pantalla-perfil {
+    max-width: 100%;
+  }
+
+  .perfil-info,
+  .form-perfil {
+    padding: 18px;
+  }
+
+  .plan-semanal-grid,
+  .plan-semanal-lista {
+    grid-template-columns: 1fr;
+  }
+
+  .historial-lista {
+    max-height: 420px;
+  }
+
+  .historial-item button,
+  .historial-header button {
+    width: 100%;
+  }
+
+  .workout-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .workout-header h2 {
+    font-size: 24px;
+  }
+
+  .ejercicio-display {
+    padding: 16px;
+    gap: 18px;
+  }
+
+  .ejercicio-display h3 {
+    font-size: 24px;
+  }
+
+  .ejercicio-display img {
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .parametros {
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .workout-controles {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .workout-controles button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .sidebar-grupos {
+    grid-template-columns: 1fr;
+  }
+
+  .contenido {
+    padding-inline: 10px;
+  }
+
+  .rutina-campos {
+    grid-template-columns: 1fr;
+  }
+
+  .distribucion-muscular .figura-muscular,
+  .figura-muscular {
+    max-width: 190px;
+  }
+}
