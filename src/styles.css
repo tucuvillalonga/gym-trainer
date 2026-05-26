@@ -394,6 +394,7 @@ button {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
+  align-items: start;
 }
 
 .card-large {
@@ -424,6 +425,77 @@ button {
   background: linear-gradient(90deg, #2563eb, #60a5fa);
 }
 
+/* Rutina pausada badge (topbar) */
+.rutina-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: #f3f4f6;
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.rutina-badge:hover {
+  background: rgba(37,99,235,0.06);
+}
+
+.rutina-badge-activo {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: #f3f4f6;
+  padding: 8px 10px;
+  border-radius: 10px;
+  margin-left: 16px;
+  text-align: left;
+}
+
+.rutina-badge-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rutina-badge-bar {
+  width: 120px;
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.rutina-badge-fill {
+  height: 100%;
+  background: #4caf50;
+}
+
+/* Primary button (relleno) */
+.boton-primario {
+  background: linear-gradient(90deg, #2563eb, #4f46e5);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 6px 18px rgba(37,99,235,0.18);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.boton-primario:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(37,99,235,0.22);
+}
+
+.boton-primario:active {
+  transform: translateY(0);
+}
+
 .racha {
   display: flex;
   gap: 12px;
@@ -439,10 +511,96 @@ button {
   margin-right: 8px;
 }
 
+.distribucion-muscular-card {
+  min-width: 0;
+}
+
+.distribucion-muscular .mapa-muscular {
+  margin-top: 0;
+}
+
+.distribucion-muscular .mapa-vistas {
+  gap: 14px;
+}
+
+.distribucion-muscular .mapa-vista {
+  flex-basis: 220px;
+  padding: 12px;
+}
+
+.distribucion-muscular .figura-muscular {
+  max-width: 220px;
+}
+
+.descanso-muscular {
+  margin-top: 18px;
+}
+
+.descanso-muscular h4 {
+  margin: 0 0 12px;
+}
+
+.descanso-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.descanso-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #1e293b;
+}
+
+.descanso-item strong,
+.descanso-item span {
+  display: block;
+}
+
+.descanso-item span {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.descanso-item p {
+  margin: 0;
+  color: #facc15;
+  font-weight: 800;
+  text-align: right;
+}
+
+.descanso-item p.listo {
+  color: #e5e7eb;
+}
+
 .ultimos-lista {
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 148px;
+  overflow-y: auto;
+  padding-right: 8px;
+  scrollbar-color: rgba(96, 165, 250, 0.35) transparent;
+  scrollbar-width: thin;
+}
+
+.ultimos-lista::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ultimos-lista::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ultimos-lista::-webkit-scrollbar-thumb {
+  background: rgba(96, 165, 250, 0.35);
+  border-radius: 999px;
 }
 
 .ultimos-lista li {
@@ -1511,6 +1669,73 @@ button {
 
 .pantalla-perfil > button:hover {
   background: #1d4ed8;
+}
+
+.historial-perfil {
+  margin-bottom: 32px;
+}
+
+.historial-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.historial-header h3 {
+  margin: 0 0 6px;
+}
+
+.historial-header p {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.historial-lista {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.historial-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #1e293b;
+}
+
+.historial-item strong,
+.historial-item span {
+  display: block;
+}
+
+.historial-item span {
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.boton-peligro {
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.boton-peligro:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fecaca;
+  border-color: rgba(239, 68, 68, 0.65);
+}
+
+.boton-peligro:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .editar-rutina-inline button {

@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useRutinas } from "../hooks/useRutinas";
-import { useHistorial } from "../hooks/useHistorial";
+import type { Rutina } from "../types/rutina";
 
-function MisRutinas() {
+type Props = {
+  onEmpezar: (rutina: Rutina) => void;
+};
+
+function MisRutinas({ onEmpezar }: Props) {
   const {
     rutinas,
     crearRutina,
@@ -13,7 +17,6 @@ function MisRutinas() {
     eliminarEjercicioDeRutina,
     actualizarNombreRutina,
   } = useRutinas();
-  const { registrarEntrenamiento } = useHistorial();
 
   const [nombre, setNombre] = useState("");
   const [rutinaActivaId, setRutinaActivaId] = useState<string | null>(null);
@@ -57,14 +60,6 @@ function MisRutinas() {
   });
 
   if (rutinaActiva) {
-    const mostrarPanelAgregar = modoEdicion || rutinaActiva.ejercicios.length === 0;
-
-    function completarRutina() {
-      if (!rutinaActiva) return;
-      registrarEntrenamiento(rutinaActiva);
-      alert(`Rutina "${rutinaActiva.nombre}" registrada como completada.`);
-    }
-
     return (
       <section className="pantalla-rutinas detalle-rutina-activa">
         <button
@@ -132,9 +127,9 @@ function MisRutinas() {
           <button
             type="button"
             className="boton-secundario"
-            onClick={completarRutina}
+            onClick={() => onEmpezar(rutinaActiva)}
           >
-            Completar
+            Hacer rutina
           </button>
 
           <button
@@ -256,7 +251,7 @@ function MisRutinas() {
             </div>
           </div>
 
-          {mostrarPanelAgregar && (
+          {modoEdicion && (
             <div>
               <div className="panel panel-agregar-ejercicios">
                 <h3>Agregar ejercicios</h3>
@@ -297,8 +292,6 @@ function MisRutinas() {
 
   return (
     <section className="pantalla-rutinas">
-      <h2>Mis rutinas</h2>
-
       <div className="crear-rutina">
         <input
           value={nombre}
@@ -326,7 +319,11 @@ function MisRutinas() {
           <div
             key={rutina.id}
             className="panel rutina-card-clickeable"
-            onClick={() => setRutinaActivaId(rutina.id)}
+            onClick={() => {
+              setRutinaActivaId(rutina.id);
+              setNuevoNombre(rutina.nombre);
+              setModoEdicion(rutina.ejercicios.length === 0);
+            }}
           >
             <h3>{rutina.nombre}</h3>
             <p>{rutina.ejercicios.length} ejercicios</p>

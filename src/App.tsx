@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ejercicios } from "./data/ejercicios";
+import { useRutinas } from "./hooks/useRutinas";
 import type { Ejercicio } from "./types/ejercicio";
 import type { Rutina } from "./types/rutina";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
@@ -10,14 +11,19 @@ import Perfil from "./components/Perfil";
 import WorkoutRunner from "./components/WorkoutRunner";
 
 const CLAVE_FAVORITOS = "gym-trainer-favoritos";
+const CLAVE_RUTINA_GUARDADA = "gym-trainer-rutina-guardada";
 
 function App() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] =
     useState<Ejercicio | null>(null);
   const [rutinaEnProgreso, setRutinaEnProgreso] = useState<Rutina | null>(null);
+  const [rutinaPausada, setRutinaPausada] = useState(false);
+  const [indiceRutinaActual, setIndiceRutinaActual] = useState(0);
+  const [rutinasRestaurada, setRutinasRestaurada] = useState(false);
+  const { rutinas } = useRutinas();
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
-  const [pantalla, setPantalla] = useState<"inicio" | "ejercicios" | "favoritos" | "rutinas" | "perfil">(
+  const [pantalla, setPantalla] = useState<"inicio" | "ejercicios" | "rutinas" | "perfil">(
     "inicio"
   );
   const [dificultadSeleccionada, setDificultadSeleccionada] =
@@ -25,6 +31,7 @@ function App() {
   const [equipamientoSeleccionado, setEquipamientoSeleccionado] =
     useState("Todos");
   const [soloConVideo, setSoloConVideo] = useState(false);
+  const [soloFavoritos, setSoloFavoritos] = useState(false);
   const [favoritos, setFavoritos] = useState<string[]>(() => {
     const guardados = localStorage.getItem(CLAVE_FAVORITOS);
     return guardados ? JSON.parse(guardados) : [];
@@ -82,27 +89,32 @@ function App() {
           ejercicio.equipamiento?.includes(equipamientoSeleccionado);
 
         const coincideVideo = !soloConVideo || Boolean(ejercicio.youtubeId);
+        const coincideFavorito =
+          !soloFavoritos || favoritos.includes(ejercicio.id);
 
         return (
           coincideBusqueda &&
           coincideGrupo &&
           coincideDificultad &&
           coincideEquipamiento &&
-          coincideVideo
+          coincideVideo &&
+          coincideFavorito
         );
       }),
-    [busqueda, grupoSeleccionado, dificultadSeleccionada, equipamientoSeleccionado, soloConVideo]
-  );
-
-  const ejerciciosFavoritos = useMemo(
-    () =>
-      ejercicios.filter((ejercicio) => favoritos.includes(ejercicio.id)),
-    [favoritos]
+    [
+      busqueda,
+      grupoSeleccionado,
+      dificultadSeleccionada,
+      equipamientoSeleccionado,
+      soloConVideo,
+      soloFavoritos,
+      favoritos,
+    ]
   );
 
   const ejerciciosVisibles = useMemo(
-    () => (pantalla === "favoritos" ? ejerciciosFavoritos : ejerciciosFiltrados),
-    [pantalla, ejerciciosFavoritos, ejerciciosFiltrados]
+    () => ejerciciosFiltrados,
+    [ejerciciosFiltrados]
   );
 
   const ejerciciosAgrupadosFiltrados = useMemo(
@@ -136,21 +148,19 @@ function App() {
   function irAEjercicios() {
     setPantalla("ejercicios");
     setEjercicioSeleccionado(null);
-  }
-
-  function irAFavoritos() {
-    setPantalla("favoritos");
-    setEjercicioSeleccionado(null);
+    if (rutinaEnProgreso) setRutinaPausada(true);
   }
 
   function irARutinas() {
     setPantalla("rutinas");
     setEjercicioSeleccionado(null);
+    if (rutinaEnProgreso) setRutinaPausada(true);
   }
 
   function irAPerfil() {
     setPantalla("perfil");
     setEjercicioSeleccionado(null);
+    if (rutinaEnProgreso) setRutinaPausada(true);
   }
 
   function limpiarFiltros() {
@@ -159,6 +169,7 @@ function App() {
     setDificultadSeleccionada("Todas");
     setEquipamientoSeleccionado("Todos");
     setSoloConVideo(false);
+    setSoloFavoritos(false);
     setEjercicioSeleccionado(null);
   }
 
@@ -172,6 +183,7 @@ function App() {
 
   function abrirEjercicio(ejercicio: Ejercicio) {
     setEjercicioSeleccionado(ejercicio);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function cerrarEjercicio() {
@@ -179,12 +191,64 @@ function App() {
   }
 
   function iniciarEntrenamiento(rutina: Rutina) {
+    console.log("iniciarEntrenamiento llamada con rutina:", rutina);
+    if (!rutina || !rutina.ejercicios || rutina.ejercicios.length === 0) {
+      alert("La rutina seleccionada no tiene ejercicios. Abre Mis rutinas para editarla.");
+      setPantalla("rutinas");
+      return;
+    }
+
+    setIndiceRutinaActual(0);
     setRutinaEnProgreso(rutina);
+    setRutinaPausada(false);
   }
 
   function finalizarEntrenamiento() {
     setRutinaEnProgreso(null);
+    localStorage.removeItem(CLAVE_RUTINA_GUARDADA);
   }
+
+  // Restaurar rutina guardada (si existe) SOLO una vez al montar
+  useEffect(() => {
+    if (rutinasRestaurada) return;
+
+    const guardada = localStorage.getItem(CLAVE_RUTINA_GUARDADA);
+    if (!guardada) {
+      setRutinasRestaurada(true);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(guardada);
+      const { rutinaId, indice = 0, pausada = false } = parsed;
+      const encontrada = rutinas.find((r) => r.id === rutinaId);
+      if (encontrada) {
+        setRutinaEnProgreso(encontrada);
+        setIndiceRutinaActual(indice);
+        setRutinaPausada(pausada);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    setRutinasRestaurada(true);
+  }, []);
+
+  // Sincronizar rutina en progreso en localStorage
+  useEffect(() => {
+    if (!rutinaEnProgreso) {
+      localStorage.removeItem(CLAVE_RUTINA_GUARDADA);
+      return;
+    }
+
+    const payload = {
+      rutinaId: rutinaEnProgreso.id,
+      indice: indiceRutinaActual,
+      pausada: rutinaPausada,
+    };
+
+    localStorage.setItem(CLAVE_RUTINA_GUARDADA, JSON.stringify(payload));
+  }, [rutinaEnProgreso, indiceRutinaActual, rutinaPausada]);
 
   return (
     <div className="layout">
@@ -194,7 +258,11 @@ function App() {
         <nav className="sidebar-grupos">
           <button
             type="button"
-            onClick={() => setPantalla("inicio")}
+            onClick={() => {
+              setPantalla("inicio");
+              if (rutinaEnProgreso) setRutinaEnProgreso(null);
+              setEjercicioSeleccionado(null);
+            }}
             className={pantalla === "inicio" ? "activo" : ""}
           >
             Inicio
@@ -205,14 +273,6 @@ function App() {
             className={pantalla === "ejercicios" ? "activo" : ""}
           >
             Ejercicios
-          </button>
-
-          <button
-            type="button"
-            onClick={irAFavoritos}
-            className={pantalla === "favoritos" ? "activo" : ""}
-          >
-            Favoritos
           </button>
 
           <button
@@ -230,129 +290,152 @@ function App() {
           <div className="topbar-title">
             {pantalla === "inicio" && "Inicio"}
             {pantalla === "ejercicios" && "Ejercicios"}
-            {pantalla === "favoritos" && "Favoritos"}
             {pantalla === "rutinas" && "Mis rutinas"}
             {pantalla === "perfil" && "Perfil"}
           </div>
+          {rutinaEnProgreso && rutinaPausada && (
+            <button
+              className="rutina-badge"
+              style={{ marginLeft: "16px" }}
+              onClick={() => setRutinaPausada(false)}
+              aria-label={`Reanudar rutina ${rutinaEnProgreso.nombre}`}
+            >
+              <div className="rutina-badge-info">
+                <span style={{ fontSize: "0.9rem" }}>⏸️ {rutinaEnProgreso.nombre}</span>
+                <div className="rutina-badge-bar">
+                  <div className="rutina-badge-fill" style={{ width: `${Math.round(((indiceRutinaActual + 1) / rutinaEnProgreso.ejercicios.length) * 100)}%` }} />
+                </div>
+              </div>
+            </button>
+          )}
+          {rutinaEnProgreso && !rutinaPausada && (
+            <div className="rutina-badge-activo">
+              <span style={{ fontSize: "0.9rem" }}>🏋️ {rutinaEnProgreso.nombre}</span>
+              <div className="rutina-badge-bar">
+                <div className="rutina-badge-fill" style={{ width: `${Math.round(((indiceRutinaActual + 1) / rutinaEnProgreso.ejercicios.length) * 100)}%` }} />
+              </div>
+            </div>
+          )}
           <button className="perfil-avatar" type="button" onClick={irAPerfil} aria-label="Abrir perfil">
             <span>👤</span>
           </button>
         </div>
 
-        {rutinaEnProgreso ? (
+        {rutinaEnProgreso && !rutinaPausada ? (
           <WorkoutRunner
             rutina={rutinaEnProgreso}
             onFinish={finalizarEntrenamiento}
             onCancel={finalizarEntrenamiento}
+            onIndexChange={(i) => setIndiceRutinaActual(i)}
           />
         ) : pantalla === "inicio" ? (
           <Dashboard irAEjercicios={irAEjercicios} irARutinas={irARutinas} onEmpezar={iniciarEntrenamiento} />
-        ) : (
-          (pantalla === "ejercicios" || pantalla === "favoritos") && (
-          <div className="panel panel-filtros">
-            <div className="buscador">
-              <input
-                type="text"
-                placeholder={
-                  pantalla === "favoritos"
-                    ? "Buscar favoritos..."
-                    : "Buscar ejercicio..."
-                }
-                value={busqueda}
-                onChange={(event) => {
-                  setBusqueda(event.target.value);
-                  setEjercicioSeleccionado(null);
-                }}
-              />
-            </div>
-
-            <div className="filtros-avanzados filtros-grid">
-              <label>
-                Grupo muscular
-                <select
-                  value={grupoSeleccionado}
-                  onChange={(event) => setGrupoSeleccionado(event.target.value)}
-                >
-                  {todosLosGrupos.map((grupo) => (
-                    <option key={grupo} value={grupo}>
-                      {grupo}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                Dificultad
-                <select
-                  value={dificultadSeleccionada}
-                  onChange={(event) => setDificultadSeleccionada(event.target.value)}
-                >
-                  {todasDificultades.map((dificultad) => (
-                    <option key={dificultad} value={dificultad}>
-                      {dificultad}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label>
-                Equipamiento
-                <select
-                  value={equipamientoSeleccionado}
-                  onChange={(event) => setEquipamientoSeleccionado(event.target.value)}
-                >
-                  {todosLosEquipamientos.map((equipo) => (
-                    <option key={equipo} value={equipo}>
-                      {equipo}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="filtro-toggle">
-                <input
-                  type="checkbox"
-                  checked={soloConVideo}
-                  onChange={(event) => setSoloConVideo(event.target.checked)}
-                />
-                Solo con video
-              </label>
-
-              <button
-                type="button"
-                className="boton-secundario boton-borrar-filtros"
-                onClick={limpiarFiltros}
-              >
-                Borrar filtros
-              </button>
-            </div>
-          </div>
-          )
-        )}
-
-        {ejercicioSeleccionado ? (
-          <section className="detalle-contenedor">
-            <button type="button" className="boton-volver" onClick={cerrarEjercicio}>
-              ← Volver a la lista
-            </button>
-            <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
-          </section>
         ) : pantalla === "rutinas" ? (
-          <MisRutinas />
+          <MisRutinas onEmpezar={iniciarEntrenamiento} />
         ) : pantalla === "perfil" ? (
           <Perfil />
-        ) : (pantalla === "ejercicios" || pantalla === "favoritos") && (
+        ) : pantalla === "ejercicios" && (
           <>
+            {ejercicioSeleccionado ? (
+              <section className="detalle-contenedor">
+                <button type="button" className="boton-volver" onClick={cerrarEjercicio}>
+                  ← Volver a la lista
+                </button>
+                <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
+              </section>
+            ) : (
+              <>
+            <div className="panel panel-filtros">
+              <div className="buscador">
+                <input
+                  type="text"
+                  placeholder="Buscar ejercicio..."
+                  value={busqueda}
+                  onChange={(event) => {
+                    setBusqueda(event.target.value);
+                    setEjercicioSeleccionado(null);
+                  }}
+                />
+              </div>
+
+              <div className="filtros-avanzados filtros-grid">
+                <label>
+                  Grupo muscular
+                  <select
+                    value={grupoSeleccionado}
+                    onChange={(event) => setGrupoSeleccionado(event.target.value)}
+                  >
+                    {todosLosGrupos.map((grupo) => (
+                      <option key={grupo} value={grupo}>
+                        {grupo}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Dificultad
+                  <select
+                    value={dificultadSeleccionada}
+                    onChange={(event) => setDificultadSeleccionada(event.target.value)}
+                  >
+                    {todasDificultades.map((dificultad) => (
+                      <option key={dificultad} value={dificultad}>
+                        {dificultad}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  Equipamiento
+                  <select
+                    value={equipamientoSeleccionado}
+                    onChange={(event) => setEquipamientoSeleccionado(event.target.value)}
+                  >
+                    {todosLosEquipamientos.map((equipo) => (
+                      <option key={equipo} value={equipo}>
+                        {equipo}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="filtro-toggle">
+                  <input
+                    type="checkbox"
+                    checked={soloConVideo}
+                    onChange={(event) => setSoloConVideo(event.target.checked)}
+                  />
+                  Solo con video
+                </label>
+
+                <label className="filtro-toggle">
+                  <input
+                    type="checkbox"
+                    checked={soloFavoritos}
+                    onChange={(event) => setSoloFavoritos(event.target.checked)}
+                  />
+                  Favoritos
+                </label>
+
+                <button
+                  type="button"
+                  className="boton-secundario boton-borrar-filtros"
+                  onClick={limpiarFiltros}
+                >
+                  Borrar filtros
+                </button>
+              </div>
+            </div>
+
             <div className="panel resumen-filtro">
               <p>
                 {ejerciciosVisibles.length} ejercicios encontrados
                 {soloConVideo ? " (solo con video)" : ""}
+                {soloFavoritos ? " (favoritos)" : ""}
               </p>
-              <p>
-                {pantalla === "favoritos"
-                  ? "Favoritos"
-                  : "Listado de ejercicios"}
-              </p>
+              <p>Listado de ejercicios</p>
             </div>
 
             {gruposOrdenados.length === 0 ? (
@@ -392,12 +475,37 @@ function App() {
                         </div>
                       ))}
                     </div>
+
+                    {rutinaEnProgreso && rutinaPausada && (
+                      <div className="rutina-flotante">
+                        <div className="panel">
+                          <p>Rutina en pausa: {rutinaEnProgreso.nombre}</p>
+                          <div style={{ display: "flex", gap: "8px" }}>
+                            <button
+                              className="boton-primario"
+                              onClick={() => setRutinaPausada(false)}
+                            >
+                              Reanudar
+                            </button>
+                            <button
+                              className="boton-secundario"
+                              onClick={() => setRutinaEnProgreso(null)}
+                            >
+                              Salir
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </section>
                 ))}
               </div>
             )}
+              </>
+            )}
           </>
         )}
+
       </main>
     </div>
   );

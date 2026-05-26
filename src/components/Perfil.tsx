@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRutinas } from "../hooks/useRutinas";
 import { usePerfil, type PreferenciasPerfil } from "../hooks/usePerfil";
+import { useHistorial } from "../hooks/useHistorial";
 
 const diasLabels: Record<string, string> = {
   domingo: "Domingo",
@@ -15,8 +16,14 @@ const diasLabels: Record<string, string> = {
 function Perfil() {
   const { rutinas } = useRutinas();
   const { perfil, setPerfil, diasSemana } = usePerfil();
+  const { historial, borrarEntrenamiento, limpiarHistorialSemana } = useHistorial();
   const [editando, setEditando] = useState(false);
   const [temporal, setTemporal] = useState<PreferenciasPerfil>(perfil);
+
+  const entrenamientosSemana = historial.filter((entrenamiento) => {
+    const desde = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    return new Date(entrenamiento.fechaISO).getTime() >= desde;
+  });
 
   useEffect(() => {
     setTemporal(perfil);
@@ -31,6 +38,35 @@ function Perfil() {
   function cancelar() {
     setTemporal(perfil);
     setEditando(false);
+  }
+
+  function resetearProgresoSemana() {
+    const confirmar = window.confirm(
+      "Seguro que queres borrar el progreso de los ultimos 7 dias? Esto va a resetear el resumen semanal y el mapa muscular."
+    );
+
+    if (!confirmar) return;
+
+    limpiarHistorialSemana();
+  }
+
+  function borrarRegistro(id: string, nombre: string) {
+    const confirmar = window.confirm(
+      `Seguro que queres borrar el registro de "${nombre}"?`
+    );
+
+    if (!confirmar) return;
+
+    borrarEntrenamiento(id);
+  }
+
+  function formatearFecha(fechaISO: string) {
+    return new Intl.DateTimeFormat("es-AR", {
+      day: "2-digit",
+      month: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(new Date(fechaISO));
   }
 
   if (editando) {
@@ -200,6 +236,50 @@ function Perfil() {
             );
           })}
         </div>
+      </div>
+
+      <div className="historial-perfil panel">
+        <div className="historial-header">
+          <div>
+            <h3>Progreso y registros</h3>
+            <p>{entrenamientosSemana.length} entrenamientos en los ultimos 7 dias</p>
+          </div>
+
+          <button
+            type="button"
+            className="boton-secundario boton-peligro"
+            onClick={resetearProgresoSemana}
+            disabled={entrenamientosSemana.length === 0}
+          >
+            Resetear semana
+          </button>
+        </div>
+
+        {historial.length === 0 ? (
+          <p className="muted">Todavia no hay entrenamientos registrados.</p>
+        ) : (
+          <div className="historial-lista">
+            {historial.map((entrenamiento) => (
+              <div key={entrenamiento.id} className="historial-item">
+                <div>
+                  <strong>{entrenamiento.nombre}</strong>
+                  <span>
+                    {formatearFecha(entrenamiento.fechaISO)} ·{" "}
+                    {entrenamiento.ejercicios.length} ejercicios
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  className="boton-secundario boton-peligro"
+                  onClick={() => borrarRegistro(entrenamiento.id, entrenamiento.nombre)}
+                >
+                  Borrar
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <button className="boton-primario" onClick={() => setEditando(true)}>

@@ -5,7 +5,11 @@ import type {
 } from "../types/ejercicio";
 
 type Props = {
-  mapaDeEnfoque: MapaDeEnfoque[];
+  mapaDeEnfoque?: MapaDeEnfoque[];
+  titulo?: string;
+  leyenda?: { etiqueta: string; color: string }[];
+  colorPorRegion?: Partial<Record<RegionMuscular, string>>;
+  etiquetaPorRegion?: Partial<Record<RegionMuscular, string>>;
 };
 
 const coloresPorNivel: Record<NivelMuscular | "inactivo", string> = {
@@ -35,6 +39,8 @@ const nombresRegion: Record<RegionMuscular, string> = {
   gluteos: "Gluteos",
   pantorrillas: "Pantorrillas",
   dorsales: "Dorsales",
+  espaldaAlta: "Espalda alta",
+  espaldaMedia: "Espalda media",
   trapecios: "Trapecios",
   espaldaBaja: "Espalda baja",
 };
@@ -56,12 +62,18 @@ type PiezaMuscularProps = {
   color: string;
 };
 
-function MapaMuscular({ mapaDeEnfoque }: Props) {
+function MapaMuscular({
+  mapaDeEnfoque = [],
+  titulo = "Mapa muscular",
+  leyenda,
+  colorPorRegion = {},
+  etiquetaPorRegion = {},
+}: Props) {
   const obtenerNivel = (region: RegionMuscular) =>
     mapaDeEnfoque.find((item) => item.region === region)?.nivel ?? "inactivo";
 
   const obtenerColor = (region: RegionMuscular) =>
-    coloresPorNivel[obtenerNivel(region)];
+    colorPorRegion[region] ?? coloresPorNivel[obtenerNivel(region)];
 
   const PiezaMuscular = ({
     region,
@@ -71,7 +83,9 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
   }: PiezaMuscularProps) => {
     const fill = region ? obtenerColor(region) : color;
     const label = region
-      ? `${nombresRegion[region]} - ${etiquetasPorNivel[obtenerNivel(region)]}`
+      ? `${nombresRegion[region]} - ${
+          etiquetaPorRegion[region] ?? etiquetasPorNivel[obtenerNivel(region)]
+        }`
       : "Zona sin foco";
 
     if (tipo === "polygon") {
@@ -108,17 +122,24 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
   return (
     <section className="mapa-muscular">
       <div className="mapa-muscular-header">
-        <h3>Mapa muscular</h3>
+        <h3>{titulo}</h3>
 
         <div className="mapa-leyenda" aria-label="Leyenda de intensidad">
-          {(["principal", "secundario", "indirecto"] as NivelMuscular[]).map(
-            (nivel) => (
-              <span key={nivel}>
-                <i style={{ backgroundColor: coloresPorNivel[nivel] }} />
-                {etiquetasPorNivel[nivel]}
-              </span>
-            )
-          )}
+          {leyenda
+            ? leyenda.map((item) => (
+                <span key={item.etiqueta}>
+                  <i style={{ backgroundColor: item.color }} />
+                  {item.etiqueta}
+                </span>
+              ))
+            : (["principal", "secundario", "indirecto"] as NivelMuscular[]).map(
+                (nivel) => (
+                  <span key={nivel}>
+                    <i style={{ backgroundColor: coloresPorNivel[nivel] }} />
+                    {etiquetasPorNivel[nivel]}
+                  </span>
+                )
+              )}
         </div>
       </div>
 
@@ -269,9 +290,18 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
               />
               <PiezaMuscular
                 region="trapecios"
-                tipo="polygon"
                 color={coloresPorNivel.inactivo}
-                points="102,72 158,72 184,118 151,116 130,103 109,116 76,118"
+                d="M112 68 C118 86 124 98 130 109 C136 98 142 86 148 68 C153 87 166 104 184 118 C168 118 153 113 142 106 C136 102 133 104 130 111 C127 104 124 102 118 106 C107 113 92 118 76 118 C94 104 107 87 112 68Z"
+              />
+              <PiezaMuscular
+                region="espaldaAlta"
+                color={coloresPorNivel.inactivo}
+                d="M88 113 C104 105 121 111 130 126 L130 166 C112 164 98 153 90 138 C84 127 84 117 88 113Z"
+              />
+              <PiezaMuscular
+                region="espaldaAlta"
+                color={coloresPorNivel.inactivo}
+                d="M172 113 C156 105 139 111 130 126 L130 166 C148 164 162 153 170 138 C176 127 176 117 172 113Z"
               />
               <PiezaMuscular
                 region="deltoides"
@@ -287,21 +317,31 @@ function MapaMuscular({ mapaDeEnfoque }: Props) {
               <PiezaMuscular
                 region="dorsales"
                 color={coloresPorNivel.inactivo}
-                d="M86 121 C102 112 118 111 130 122 L130 252 C111 248 94 234 85 211 C76 186 75 144 86 121Z"
+                d="M86 126 C96 145 111 160 130 171 L130 252 C111 247 96 233 88 211 C81 188 79 151 86 126Z"
               />
               <PiezaMuscular
                 region="dorsales"
                 color={coloresPorNivel.inactivo}
-                d="M174 121 C158 112 142 111 130 122 L130 252 C149 248 166 234 175 211 C184 186 185 144 174 121Z"
+                d="M174 126 C164 145 149 160 130 171 L130 252 C149 247 164 233 172 211 C179 188 181 151 174 126Z"
+              />
+              <PiezaMuscular
+                region="espaldaMedia"
+                color={coloresPorNivel.inactivo}
+                d="M101 151 C113 158 123 163 130 166 L130 211 C117 208 106 199 99 186 C94 174 95 161 101 151Z"
+              />
+              <PiezaMuscular
+                region="espaldaMedia"
+                color={coloresPorNivel.inactivo}
+                d="M159 151 C147 158 137 163 130 166 L130 211 C143 208 154 199 161 186 C166 174 165 161 159 151Z"
               />
               <PiezaMuscular
                 region="espaldaBaja"
                 color={coloresPorNivel.inactivo}
-                d="M109 208 C122 216 138 216 151 208 L158 260 C143 272 117 272 102 260Z"
+                d="M109 207 C122 216 138 216 151 207 L158 260 C145 271 115 271 102 260Z"
               />
               <path
                 className="linea-cuerpo"
-                d="M130 121 L130 262 M101 150 C116 163 144 163 159 150 M100 187 C116 198 144 198 160 187"
+                d="M130 112 L130 262 M101 149 C116 162 144 162 159 149 M99 187 C116 198 144 198 161 187 M109 221 C122 229 138 229 151 221"
               />
 
               <PiezaMuscular

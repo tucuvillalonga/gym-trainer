@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useHistorial } from "../hooks/useHistorial";
 import type { Rutina, EjercicioRutina } from "../types/rutina";
@@ -7,9 +7,10 @@ type Props = {
   rutina: Rutina;
   onFinish: () => void;
   onCancel: () => void;
+  onIndexChange?: (index: number) => void;
 };
 
-function WorkoutRunner({ rutina, onFinish, onCancel }: Props) {
+function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const { registrarEntrenamiento } = useHistorial();
   const [indiceActual, setIndiceActual] = useState(0);
 
@@ -28,13 +29,17 @@ function WorkoutRunner({ rutina, onFinish, onCancel }: Props) {
 
   function irAlSiguiente() {
     if (indiceActual < rutina.ejercicios.length - 1) {
-      setIndiceActual(indiceActual + 1);
+      const nuevo = indiceActual + 1;
+      setIndiceActual(nuevo);
+      onIndexChange?.(nuevo);
     }
   }
 
   function irAlAnterior() {
     if (indiceActual > 0) {
-      setIndiceActual(indiceActual - 1);
+      const nuevo = indiceActual - 1;
+      setIndiceActual(nuevo);
+      onIndexChange?.(nuevo);
     }
   }
 
@@ -51,6 +56,10 @@ function WorkoutRunner({ rutina, onFinish, onCancel }: Props) {
       </div>
     );
   }
+
+  useEffect(() => {
+    onIndexChange?.(indiceActual);
+  }, [indiceActual, onIndexChange]);
 
   return (
     <div className="workout-runner">

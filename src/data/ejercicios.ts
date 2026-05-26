@@ -30,7 +30,30 @@ function clasificarEjercicio(nombre: string, url: string, id: string) {
     musculoPrincipal: "dorsales" as const,
     mapaDeEnfoque: [
       { region: "dorsales" as const, nivel: "principal" as const },
+      { region: "espaldaMedia" as const, nivel: "secundario" as const },
       { region: "biceps" as const, nivel: "secundario" as const },
+      { region: "espaldaAlta" as const, nivel: "indirecto" as const },
+    ],
+  });
+
+  const espaldaMedia = () => ({
+    grupoMuscular: "Espalda",
+    musculoPrincipal: "espaldaMedia" as const,
+    mapaDeEnfoque: [
+      { region: "espaldaMedia" as const, nivel: "principal" as const },
+      { region: "dorsales" as const, nivel: "secundario" as const },
+      { region: "biceps" as const, nivel: "secundario" as const },
+      { region: "espaldaAlta" as const, nivel: "indirecto" as const },
+    ],
+  });
+
+  const espaldaAlta = () => ({
+    grupoMuscular: "Espalda",
+    musculoPrincipal: "espaldaAlta" as const,
+    mapaDeEnfoque: [
+      { region: "espaldaAlta" as const, nivel: "principal" as const },
+      { region: "espaldaMedia" as const, nivel: "secundario" as const },
+      { region: "deltoides" as const, nivel: "secundario" as const },
       { region: "trapecios" as const, nivel: "secundario" as const },
     ],
   });
@@ -40,7 +63,7 @@ function clasificarEjercicio(nombre: string, url: string, id: string) {
     musculoPrincipal: "deltoides" as const,
     mapaDeEnfoque: [
       { region: "deltoides" as const, nivel: "principal" as const },
-      { region: "trapecios" as const, nivel: "secundario" as const },
+      { region: "espaldaAlta" as const, nivel: "secundario" as const },
       { region: "triceps" as const, nivel: "indirecto" as const },
     ],
   });
@@ -122,6 +145,7 @@ if (
     musculoPrincipal: "trapecios" as const,
     mapaDeEnfoque: [
       { region: "trapecios" as const, nivel: "principal" as const },
+      { region: "espaldaAlta" as const, nivel: "secundario" as const },
     ],
   };
 }
@@ -219,6 +243,19 @@ if (
     texto.includes("military press") ||
     texto.includes("shoulder press")
   ) {
+    if (
+      texto.includes("remo alto") ||
+      texto.includes("upright row") ||
+      texto.includes("reverse fly") ||
+      texto.includes("rear delt") ||
+      texto.includes("cruces inversos") ||
+      texto.includes("elevaciones posteriores") ||
+      texto.includes("pajaro") ||
+      texto.includes("pÃ¡jaro")
+    ) {
+      return espaldaAlta();
+    }
+
     return hombros();
   }
 
@@ -239,13 +276,18 @@ if (
   }
 
   if (
-    texto.includes("row") ||
-    texto.includes("remo") ||
     texto.includes("pulldown") ||
     texto.includes("pull-up") ||
     texto.includes("pullup")
   ) {
     return espalda();
+  }
+
+  if (
+    texto.includes("row") ||
+    texto.includes("remo")
+  ) {
+    return espaldaMedia();
   }
 
   if (

@@ -16,6 +16,8 @@ export type RegionMuscular =
   | "gluteos"
   | "pantorrillas"
   | "dorsales"
+  | "espaldaAlta"
+  | "espaldaMedia"
   | "trapecios"
   | "espaldaBaja";
 
