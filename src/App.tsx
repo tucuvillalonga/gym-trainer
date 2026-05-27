@@ -32,6 +32,7 @@ function App() {
     useState("Todos");
   const [soloConVideo, setSoloConVideo] = useState(false);
   const [soloFavoritos, setSoloFavoritos] = useState(false);
+  const [mostrarFiltros, setMostrarFiltros] = useState(false);
   const [favoritos, setFavoritos] = useState<string[]>(() => {
     const guardados = localStorage.getItem(CLAVE_FAVORITOS);
     return guardados ? JSON.parse(guardados) : [];
@@ -72,6 +73,7 @@ function App() {
           termino.length === 0 ||
           ejercicio.nombre.toLowerCase().includes(termino) ||
           ejercicio.grupoMuscular.toLowerCase().includes(termino) ||
+          ejercicio.descripcion?.toLowerCase().includes(termino) ||
           ejercicio.equipamiento?.some((equipo) =>
             equipo.toLowerCase().includes(termino)
           );
@@ -306,7 +308,6 @@ function App() {
             {pantalla === "inicio" && "Inicio"}
             {pantalla === "ejercicios" && "Ejercicios"}
             {pantalla === "rutinas" && "Mis rutinas"}
-            {pantalla === "perfil" && "Perfil"}
           </div>
           {rutinaEnProgreso && rutinaPausada && (
             <button
@@ -371,11 +372,23 @@ function App() {
                     setEjercicioSeleccionado(null);
                   }}
                 />
+                <button
+                  type="button"
+                  className="boton-filtros-toggle"
+                  aria-expanded={mostrarFiltros}
+                  aria-controls="filtros-avanzados"
+                  onClick={() => setMostrarFiltros((visible) => !visible)}
+                >
+                  {mostrarFiltros ? "Ocultar filtros" : "Mostrar filtros"}
+                </button>
               </div>
 
-              <div className="filtros-avanzados filtros-grid">
+              <div
+                id="filtros-avanzados"
+                className={`filtros-avanzadas ${mostrarFiltros ? "visible" : "oculto"}`}
+              >
                 <label>
-                  Grupo muscular
+                  <span>Grupo muscular</span>
                   <select
                     value={grupoSeleccionado}
                     onChange={(event) => setGrupoSeleccionado(event.target.value)}
@@ -389,7 +402,7 @@ function App() {
                 </label>
 
                 <label>
-                  Dificultad
+                  <span>Dificultad</span>
                   <select
                     value={dificultadSeleccionada}
                     onChange={(event) => setDificultadSeleccionada(event.target.value)}
@@ -403,7 +416,7 @@ function App() {
                 </label>
 
                 <label>
-                  Equipamiento
+                  <span>Equipamiento</span>
                   <select
                     value={equipamientoSeleccionado}
                     onChange={(event) => setEquipamientoSeleccionado(event.target.value)}
@@ -416,31 +429,35 @@ function App() {
                   </select>
                 </label>
 
-                <label className="filtro-toggle">
-                  <input
-                    type="checkbox"
-                    checked={soloConVideo}
-                    onChange={(event) => setSoloConVideo(event.target.checked)}
-                  />
-                  Solo con video
-                </label>
+                <div className="filtros-footer">
+                  <div className="filtros-checkboxes">
+                    <label className="filtro-toggle">
+                      <input
+                        type="checkbox"
+                        checked={soloConVideo}
+                        onChange={(event) => setSoloConVideo(event.target.checked)}
+                      />
+                      Solo con video
+                    </label>
 
-                <label className="filtro-toggle">
-                  <input
-                    type="checkbox"
-                    checked={soloFavoritos}
-                    onChange={(event) => setSoloFavoritos(event.target.checked)}
-                  />
-                  Favoritos
-                </label>
+                    <label className="filtro-toggle">
+                      <input
+                        type="checkbox"
+                        checked={soloFavoritos}
+                        onChange={(event) => setSoloFavoritos(event.target.checked)}
+                      />
+                      Favoritos
+                    </label>
+                  </div>
 
-                <button
-                  type="button"
-                  className="boton-secundario boton-borrar-filtros"
-                  onClick={limpiarFiltros}
-                >
-                  Borrar filtros
-                </button>
+                  <button
+                    type="button"
+                    className="boton-secundario boton-borrar-filtros"
+                    onClick={limpiarFiltros}
+                  >
+                    Borrar filtros
+                  </button>
+                </div>
               </div>
             </div>
 
