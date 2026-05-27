@@ -253,12 +253,18 @@ function App() {
   return (
     <div className="layout">
       <aside className="sidebar">
-        <div className="logo">
-          <span className="logo-mark" aria-hidden="true" />
-          <span className="logo-text">
-            <strong>FIT<span>APP</span></strong>
-            <small>Entrena tu mejor version</small>
-          </span>
+        <div className="app-header">
+          <div className="logo">
+            <span className="logo-mark" aria-hidden="true" />
+            <span className="logo-text">
+              <strong>FIT<span>APP</span></strong>
+              <small>Entrena tu mejor version</small>
+            </span>
+          </div>
+
+          <button className="perfil-avatar perfil-avatar-sidebar" type="button" onClick={irAPerfil} aria-label="Abrir perfil">
+            <span>👤</span>
+          </button>
         </div>
 
         <nav className="sidebar-grupos">
@@ -325,7 +331,7 @@ function App() {
               </div>
             </div>
           )}
-          <button className="perfil-avatar" type="button" onClick={irAPerfil} aria-label="Abrir perfil">
+          <button className="perfil-avatar perfil-avatar-topbar" type="button" onClick={irAPerfil} aria-label="Abrir perfil">
             <span>👤</span>
           </button>
         </div>

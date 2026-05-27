@@ -20,6 +20,14 @@ button {
 
 /* SIDEBAR */
 
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+
 .sidebar {
   width: 280px;
   background: #0f172a;
@@ -37,7 +45,7 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 32px;
+  margin: 0;
 }
 
 .logo-mark {
@@ -1887,6 +1895,10 @@ button {
   background: #111827;
 }
 
+.perfil-avatar-sidebar {
+  display: none;
+}
+
 .workout-runner {
   display: flex;
   flex-direction: column;
@@ -2073,6 +2085,12 @@ button {
     padding: 20px 18px 14px;
     border-right: 0;
     border-bottom: 1px solid #1e293b;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .app-header {
+    margin-bottom: 0;
   }
 
   .logo {
@@ -2095,11 +2113,9 @@ button {
 
   .sidebar-grupos {
     display: grid;
-    position: fixed;
-    top: auto !important;
-    left: 12px;
-    right: 12px;
-    bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+    position: fixed !important;
+    inset: auto 12px 16px 12px !important;
+    bottom: calc(16px + env(safe-area-inset-bottom)) !important;
     z-index: 50;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
@@ -2148,6 +2164,14 @@ button {
   .perfil-avatar {
     order: initial;
     margin-left: auto;
+  }
+
+  .perfil-avatar-sidebar {
+    display: grid;
+  }
+
+  .perfil-avatar-topbar {
+    display: none;
   }
 
   .topbar-title {
