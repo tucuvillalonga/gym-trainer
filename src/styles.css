@@ -4,7 +4,6 @@
 
 body {
   margin: 0;
-  padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
   font-family: Arial, sans-serif;
   background: #0b1120;
@@ -2091,7 +2090,7 @@ button {
     top: 0;
     width: 100%;
     height: auto;
-    padding: calc(20px + env(safe-area-inset-top)) 18px 14px;
+    padding: calc(14px + env(safe-area-inset-top)) 18px 14px;
     border-right: 0;
     border-bottom: 1px solid #1e293b;
     animation: none !important;
