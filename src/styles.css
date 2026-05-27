@@ -2160,8 +2160,17 @@ button {
 /* MOBILE */
 
 @media (max-width: 640px) {
+  html,
   body {
     overflow-x: hidden;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+    width: 0;
   }
 
   .layout {
