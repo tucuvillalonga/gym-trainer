@@ -342,6 +342,7 @@ button {
 
   .contenido {
     padding: 22px;
+    padding-bottom: calc(48px + env(safe-area-inset-bottom));
   }
 
   .detalle-grid {
