@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Rutina } from "../types/rutina";
+import { inicioDeSemana } from "../utils/fechas";
 
 const CLAVE_HISTORIAL = "gym-trainer-historial";
 const EVENTO_HISTORIAL = "gym-trainer-historial-actualizado";
@@ -69,7 +70,7 @@ export function useHistorial() {
   }
 
   function limpiarHistorialSemana() {
-    const desde = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const desde = inicioDeSemana().getTime();
     const actualizado = leerHistorial().filter(
       (entrenamiento) => new Date(entrenamiento.fechaISO).getTime() < desde
     );

@@ -1796,6 +1796,39 @@ button {
   margin-bottom: 32px;
 }
 
+.plan-semanal-panel {
+  margin-bottom: 32px;
+}
+
+.plan-semanal-panel h3 {
+  margin: 0 0 18px;
+}
+
+.plan-semanal-lista {
+  display: grid;
+  gap: 10px;
+}
+
+.plan-semanal-item {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.65);
+  border: 1px solid rgba(30, 41, 59, 0.75);
+}
+
+.plan-semanal-item span {
+  color: #cbd5e1;
+  font-weight: 700;
+}
+
+.plan-semanal-item strong {
+  color: #f8fafc;
+}
+
 .info-item {
   display: flex;
   justify-content: space-between;
@@ -2506,29 +2539,58 @@ button {
   }
 
   .grilla-ejercicios {
-    grid-template-columns: 1fr;
-    gap: 18px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .tarjeta-ejercicio {
-    padding: 16px;
-    border-radius: 20px;
+    padding: 10px;
+    border-radius: 16px;
   }
 
   .tarjeta-ejercicio h2 {
-    font-size: 24px;
+    font-size: 16px;
     line-height: 1.15;
+    margin: 10px 0 8px;
+  }
+
+  .tarjeta-horizontal {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
   }
 
   .descripcion {
-    margin-bottom: 18px;
-    line-height: 1.5;
+    display: none;
+  }
+
+  .tarjeta-ejercicio .tag {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+
+  .fila-info {
+    padding-top: 10px;
+    font-size: 11px;
+    gap: 6px;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .imagen-ejercicio-lateral {
     width: 100%;
     height: auto;
-    max-height: 260px;
+    max-height: none;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+  }
+
+  .boton-favorito {
+    top: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    font-size: 14px;
   }
 
   .detalle-header h2 {
@@ -2549,16 +2611,23 @@ button {
   }
 
   .mapa-vistas {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
+    flex-wrap: nowrap;
   }
 
   .mapa-vista {
-    padding: 12px;
+    padding: 10px;
+  }
+
+  .mapa-vista p {
+    font-size: 12px;
   }
 
   .distribucion-muscular .figura-muscular,
   .figura-muscular {
-    max-width: 220px;
+    max-width: 150px;
   }
 
   .descanso-item p {
@@ -2713,6 +2782,6 @@ button {
 
   .distribucion-muscular .figura-muscular,
   .figura-muscular {
-    max-width: 190px;
+    max-width: 130px;
   }
 }

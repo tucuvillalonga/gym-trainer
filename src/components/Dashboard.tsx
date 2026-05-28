@@ -6,6 +6,8 @@ import { usePerfil } from "../hooks/usePerfil";
 import MapaMuscular from "./MapaMuscular";
 import type { NivelMuscular, RegionMuscular } from "../types/ejercicio";
 import type { Rutina } from "../types/rutina";
+import { obtenerEjerciciosPersonalizados } from "../utils/ejerciciosPersonalizados";
+import { diasDesde, esMismoDia, inicioDeSemana } from "../utils/fechas";
 
 type DiaSemana =
   | "domingo"
@@ -123,6 +125,20 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
   const { rutinas } = useRutinas();
   const { historial } = useHistorial();
   const { perfil } = usePerfil();
+  const catalogoEjercicios = React.useMemo(
+    () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
+    []
+  );
+  const hoy = new Date();
+  const diaActual = DIAS_SEMANA[hoy.getDay()];
+  const inicioSemanaActual = inicioDeSemana(hoy).getTime();
+  const entrenamientoDeHoy = React.useMemo(
+    () =>
+      historial.find((entrenamiento) =>
+        esMismoDia(new Date(entrenamiento.fechaISO), hoy)
+      ) ?? null,
+    [historial]
+  );
 
   const distribucionMuscular = React.useMemo(() => {
     const contador: Partial<Record<RegionMuscular, number>> = {};
@@ -135,16 +151,18 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
         }
       >
     > = {};
-    const desde = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const entrenamientosRecientes = historial.filter(
-      (entrenamiento) => new Date(entrenamiento.fechaISO).getTime() >= desde
+      (entrenamiento) =>
+        new Date(entrenamiento.fechaISO).getTime() >= inicioSemanaActual
     );
 
     for (const entrenamiento of entrenamientosRecientes) {
       const puntosSesion: Partial<Record<RegionMuscular, number>> = {};
 
       for (const ejercicioRef of entrenamiento.ejercicios) {
-        const ejercicio = ejercicios.find((item) => item.id === ejercicioRef.ejercicioId);
+        const ejercicio = catalogoEjercicios.find(
+          (item) => item.id === ejercicioRef.ejercicioId
+        );
         if (!ejercicio) continue;
 
         if (ejercicio.mapaDeEnfoque.length === 0) {
@@ -209,7 +227,7 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
           })
         );
         const diasDesdeUltima = ultimaFecha
-          ? Math.floor((Date.now() - ultimaFecha.getTime()) / (1000 * 60 * 60 * 24))
+          ? diasDesde(ultima.fechaISO, hoy)
           : 0;
         const diasRecomendados = calcularDiasDescanso(
           puntosSemana,
@@ -239,7 +257,7 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
       recomendacionesDescanso,
       tieneDatos: entrenamientosRecientes.length > 0,
     };
-  }, [historial]);
+  }, [historial, catalogoEjercicios, inicioSemanaActual]);
 
   const racha = React.useMemo(() => {
     if (!historial || historial.length === 0) return 0;
@@ -256,9 +274,10 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
 
   const entrenamientosSemana = React.useMemo(() => {
     if (!historial) return 0;
-    const desde = Date.now() - 7 * 24 * 60 * 60 * 1000;
-    return historial.filter((h) => new Date(h.fechaISO).getTime() >= desde).length;
-  }, [historial]);
+    return historial.filter(
+      (h) => new Date(h.fechaISO).getTime() >= inicioSemanaActual
+    ).length;
+  }, [historial, inicioSemanaActual]);
 
   const objetivoSemana = perfil.objetivoSemanal;
   const progresoSemana = calcularProgreso(entrenamientosSemana, objetivoSemana);
@@ -281,36 +300,52 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
     }
 
     return historial.slice(0, 6).map((h) => {
-      const fecha = new Date(h.fechaISO);
-      const diffMs = Date.now() - fecha.getTime();
-      const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      const diffDays = diasDesde(h.fechaISO, hoy);
       return { nombre: h.nombre, cuando: diffDays === 0 ? "hoy" : `hace ${diffDays} días` };
     });
   }, [historial]);
 
-  const proximaRutina = React.useMemo(() => {
-    const hoy = DIAS_SEMANA[new Date().getDay()];
-    const rutinaIdHoy = perfil.planSemanal[hoy];
+  const recomendacionRutina = React.useMemo(() => {
+    const rutinaIdHoy = perfil.planSemanal[diaActual];
     const rutinaHoy = rutinas.find((rutina) => rutina.id === rutinaIdHoy);
 
     if (rutinaHoy) {
-      return rutinaHoy;
+      return {
+        rutina: rutinaHoy,
+        titulo: "Rutina de hoy",
+        detalle: entrenamientoDeHoy
+          ? `Ya completaste tu entrenamiento diario: ${entrenamientoDeHoy.nombre}`
+          : "Programada para hoy",
+        puedeEmpezar: !entrenamientoDeHoy,
+      };
     }
 
     // Encuentra la próxima rutina programada en los siguientes días.
-    const hoyIndex = DIAS_SEMANA.indexOf(hoy);
+    const hoyIndex = DIAS_SEMANA.indexOf(diaActual);
     for (let desplazamiento = 1; desplazamiento < 7; desplazamiento += 1) {
       const indice = (hoyIndex + desplazamiento) % 7;
       const diaSiguiente = DIAS_SEMANA[indice];
       const rutId = perfil.planSemanal[diaSiguiente];
       const rutina = rutinas.find((item) => item.id === rutId);
       if (rutina) {
-        return rutina;
+        return {
+          rutina,
+          titulo: "Proxima rutina",
+          detalle: `Programada para ${diaSiguiente}`,
+          puedeEmpezar: true,
+        };
       }
     }
 
-    return rutinas[0] ?? { id: "demo", nombre: "Push 1", ejercicios: [] };
-  }, [perfil.planSemanal, rutinas]);
+    return {
+      rutina: rutinas[0] ?? { id: "demo", nombre: "Push 1", ejercicios: [] },
+      titulo: "Proxima rutina",
+      detalle: "Sugerida / ultima creada",
+      puedeEmpezar: true,
+    };
+  }, [perfil.planSemanal, rutinas, diaActual, entrenamientoDeHoy]);
+
+  const proximaRutina = recomendacionRutina.rutina;
 
   return (
     <div className="dashboard">
@@ -328,34 +363,36 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
 
       <div className="dashboard-grid">
         <div className="card card-large panel">
-          <h3>Próxima rutina</h3>
+          <h3>{recomendacionRutina.titulo}</h3>
           <div className="proxima-body">
             <div>
               <strong>{proximaRutina.nombre} · {proximaRutina.ejercicios?.length ?? 0} ejercicios</strong>
-              <p className="muted">Sugerida / última creada</p>
+              <p className="muted">{recomendacionRutina.detalle}</p>
             </div>
-            <div>
-              <button
-                className="boton-secundario"
-                onClick={() => {
-                  if (!proximaRutina || !proximaRutina.ejercicios || proximaRutina.ejercicios.length === 0) {
-                    alert("Crea una rutina primero.");
-                    irARutinas();
-                    return;
-                  }
+            {recomendacionRutina.puedeEmpezar && (
+              <div>
+                <button
+                  className="boton-secundario"
+                  onClick={() => {
+                    if (!proximaRutina || !proximaRutina.ejercicios || proximaRutina.ejercicios.length === 0) {
+                      alert("Crea una rutina primero.");
+                      irARutinas();
+                      return;
+                    }
 
-                  // adicional: confirmar que onEmpezar existe
-                  try {
-                    onEmpezar(proximaRutina);
-                  } catch (e) {
-                    console.error("onEmpezar fallo:", e);
-                    alert("No se pudo iniciar la rutina.");
-                  }
-                }}
-              >
-                Empezar
-              </button>
-            </div>
+                    // adicional: confirmar que onEmpezar existe
+                    try {
+                      onEmpezar(proximaRutina);
+                    } catch (e) {
+                      console.error("onEmpezar fallo:", e);
+                      alert("No se pudo iniciar la rutina.");
+                    }
+                  }}
+                >
+                  Empezar
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useRutinas } from "../hooks/useRutinas";
 import { usePerfil, type PreferenciasPerfil } from "../hooks/usePerfil";
 import { useHistorial } from "../hooks/useHistorial";
+import { inicioDeSemana } from "../utils/fechas";
 
 const diasLabels: Record<string, string> = {
   domingo: "Domingo",
@@ -13,15 +14,25 @@ const diasLabels: Record<string, string> = {
   sabado: "Sábado",
 };
 
+const diasPerfil = [
+  "lunes",
+  "martes",
+  "miercoles",
+  "jueves",
+  "viernes",
+  "sabado",
+  "domingo",
+] as const;
+
 function Perfil() {
   const { rutinas } = useRutinas();
-  const { perfil, setPerfil, diasSemana } = usePerfil();
+  const { perfil, setPerfil } = usePerfil();
   const { historial, borrarEntrenamiento, limpiarHistorialSemana } = useHistorial();
   const [editando, setEditando] = useState(false);
   const [temporal, setTemporal] = useState<PreferenciasPerfil>(perfil);
 
   const entrenamientosSemana = historial.filter((entrenamiento) => {
-    const desde = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const desde = inicioDeSemana().getTime();
     return new Date(entrenamiento.fechaISO).getTime() >= desde;
   });
 
@@ -42,7 +53,7 @@ function Perfil() {
 
   function resetearProgresoSemana() {
     const confirmar = window.confirm(
-      "Seguro que queres borrar el progreso de los ultimos 7 dias? Esto va a resetear el resumen semanal y el mapa muscular."
+      "Seguro que queres borrar el progreso de esta semana? Esto va a resetear el resumen semanal y el mapa muscular."
     );
 
     if (!confirmar) return;
@@ -145,7 +156,7 @@ function Perfil() {
               Plan semanal de rutinas
             </label>
             <div className="plan-semanal-grid">
-              {diasSemana.map((dia) => (
+              {diasPerfil.map((dia) => (
                 <label key={dia} className="plan-semanal-dia">
                   <span>{diasLabels[dia]}</span>
                   <select
@@ -225,12 +236,12 @@ function Perfil() {
       <div className="plan-semanal-panel panel">
         <h3>Plan semanal</h3>
         <div className="plan-semanal-lista">
-          {diasSemana.map((dia) => {
+          {diasPerfil.map((dia) => {
             const rutinaId = perfil.planSemanal[dia] || "";
             const rutina = rutinas.find((r) => r.id === rutinaId);
             return (
               <div key={dia} className="plan-semanal-item">
-                <span>{diasLabels[dia]}</span>
+                <span>{diasLabels[dia]}:</span>
                 <strong>{rutina ? rutina.nombre : "Descanso"}</strong>
               </div>
             );
@@ -242,7 +253,7 @@ function Perfil() {
         <div className="historial-header">
           <div>
             <h3>Progreso y registros</h3>
-            <p>{entrenamientosSemana.length} entrenamientos en los ultimos 7 dias</p>
+            <p>{entrenamientosSemana.length} entrenamientos esta semana</p>
           </div>
 
           <button
