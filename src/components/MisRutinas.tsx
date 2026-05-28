@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useRutinas } from "../hooks/useRutinas";
 import type { Rutina } from "../types/rutina";
+import { obtenerEjerciciosPersonalizados } from "../utils/ejerciciosPersonalizados";
 
 type Props = {
   onEmpezar: (rutina: Rutina) => void;
@@ -23,6 +24,10 @@ function MisRutinas({ onEmpezar }: Props) {
   const [busqueda, setBusqueda] = useState("");
   const [modoEdicion, setModoEdicion] = useState(false);
   const [nuevoNombre, setNuevoNombre] = useState("");
+  const ejerciciosCatalogo = useMemo(
+    () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
+    []
+  );
 
   const rutinaActiva = rutinas.find((rutina) => rutina.id === rutinaActivaId);
 
@@ -45,7 +50,7 @@ function MisRutinas({ onEmpezar }: Props) {
     setBusqueda("");
   }
 
-  const ejerciciosDisponibles = ejercicios.filter((ejercicio) => {
+  const ejerciciosDisponibles = ejerciciosCatalogo.filter((ejercicio) => {
     if (!rutinaActiva) return false;
 
     const yaAgregado = rutinaActiva.ejercicios.some(
@@ -151,7 +156,7 @@ function MisRutinas({ onEmpezar }: Props) {
               )}
 
               {rutinaActiva.ejercicios.map((item) => {
-                const ejercicio = ejercicios.find(
+                const ejercicio = ejerciciosCatalogo.find(
                   (ejercicio) => ejercicio.id === item.ejercicioId
                 );
 

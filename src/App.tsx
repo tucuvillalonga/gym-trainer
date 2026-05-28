@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ejercicios } from "./data/ejercicios";
 import { useRutinas } from "./hooks/useRutinas";
-import type { Ejercicio } from "./types/ejercicio";
+import type { Ejercicio, RegionMuscular } from "./types/ejercicio";
 import type { Rutina } from "./types/rutina";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
 import DetalleEjercicio from "./components/DetalleEjercicio";
@@ -9,9 +9,85 @@ import MisRutinas from "./components/MisRutinas";
 import Dashboard from "./components/Dashboard";
 import Perfil from "./components/Perfil";
 import WorkoutRunner from "./components/WorkoutRunner";
+import {
+  CLAVE_EJERCICIOS_PERSONALIZADOS,
+  obtenerEjerciciosPersonalizados,
+} from "./utils/ejerciciosPersonalizados";
 
 const CLAVE_FAVORITOS = "gym-trainer-favoritos";
 const CLAVE_RUTINA_GUARDADA = "gym-trainer-rutina-guardada";
+
+const GRUPOS_PERSONALIZADOS = [
+  "Pecho",
+  "Espalda",
+  "Hombros",
+  "Biceps",
+  "Triceps",
+  "Piernas",
+  "Core",
+  "Otros",
+];
+
+const REGIONES_MUSCULARES: Array<{ valor: RegionMuscular; etiqueta: string }> = [
+  { valor: "pectoral", etiqueta: "Pecho" },
+  { valor: "dorsales", etiqueta: "Dorsales" },
+  { valor: "espaldaAlta", etiqueta: "Espalda alta" },
+  { valor: "espaldaMedia", etiqueta: "Espalda media" },
+  { valor: "espaldaBaja", etiqueta: "Espalda baja" },
+  { valor: "trapecios", etiqueta: "Trapecios" },
+  { valor: "deltoides", etiqueta: "Hombros" },
+  { valor: "biceps", etiqueta: "Biceps" },
+  { valor: "triceps", etiqueta: "Triceps" },
+  { valor: "antebrazos", etiqueta: "Antebrazos" },
+  { valor: "abdominales", etiqueta: "Abdominales" },
+  { valor: "oblicuos", etiqueta: "Oblicuos" },
+  { valor: "cuadriceps", etiqueta: "Cuadriceps" },
+  { valor: "isquiotibiales", etiqueta: "Isquiotibiales" },
+  { valor: "gluteos", etiqueta: "Gluteos" },
+  { valor: "pantorrillas", etiqueta: "Pantorrillas" },
+];
+
+const EJERCICIO_PERSONALIZADO_INICIAL = {
+  nombre: "",
+  grupoMuscular: "Pecho",
+  musculoPrincipal: "pectoral" as RegionMuscular,
+  dificultad: "Principiante" as Ejercicio["dificultad"],
+  equipamiento: "",
+  youtubeId: "",
+  descripcion: "",
+  imagen: "",
+};
+
+function extraerYoutubeId(valor: string) {
+  const texto = valor.trim();
+  if (!texto) return "";
+
+  const match =
+    texto.match(/youtu\.be\/([^?&]+)/) ||
+    texto.match(/[?&]v=([^?&]+)/) ||
+    texto.match(/embed\/([^?&]+)/);
+
+  return match?.[1] ?? texto;
+}
+
+function crearIdEjercicioPersonalizado(nombre: string) {
+  const base = nombre
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+  return `custom-${base || "ejercicio"}-${Date.now()}`;
+}
+
+function normalizarBusqueda(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
 
 function App() {
   const [ejercicioSeleccionado, setEjercicioSeleccionado] =
@@ -20,7 +96,7 @@ function App() {
   const [rutinaPausada, setRutinaPausada] = useState(false);
   const [indiceRutinaActual, setIndiceRutinaActual] = useState(0);
   const [rutinasRestaurada, setRutinasRestaurada] = useState(false);
-  const { rutinas } = useRutinas();
+  const { rutinas, eliminarEjercicioDeRutina } = useRutinas();
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
   const [pantalla, setPantalla] = useState<"inicio" | "ejercicios" | "rutinas" | "perfil">(
@@ -32,7 +108,13 @@ function App() {
     useState("Todos");
   const [soloConVideo, setSoloConVideo] = useState(false);
   const [soloFavoritos, setSoloFavoritos] = useState(false);
+  const [soloCreadosPorMi, setSoloCreadosPorMi] = useState(false);
   const [mostrarFiltros, setMostrarFiltros] = useState(false);
+  const [mostrarCrearEjercicio, setMostrarCrearEjercicio] = useState(false);
+  const [nuevoEjercicio, setNuevoEjercicio] = useState(EJERCICIO_PERSONALIZADO_INICIAL);
+  const [ejerciciosPersonalizados, setEjerciciosPersonalizados] = useState<Ejercicio[]>(
+    () => obtenerEjerciciosPersonalizados()
+  );
   const [favoritos, setFavoritos] = useState<string[]>(() => {
     const guardados = localStorage.getItem(CLAVE_FAVORITOS);
     return guardados ? JSON.parse(guardados) : [];
@@ -42,40 +124,57 @@ function App() {
     localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
   }, [favoritos]);
 
+  useEffect(() => {
+    localStorage.setItem(
+      CLAVE_EJERCICIOS_PERSONALIZADOS,
+      JSON.stringify(ejerciciosPersonalizados)
+    );
+  }, [ejerciciosPersonalizados]);
+
+  const ejerciciosDisponibles = useMemo(
+    () => [...ejercicios, ...ejerciciosPersonalizados],
+    [ejerciciosPersonalizados]
+  );
+
   const todasDificultades = useMemo(
-    () => ["Todas", ...new Set(ejercicios.map((ejercicio) => ejercicio.dificultad))],
-    []
+    () => [
+      "Todas",
+      ...new Set(ejerciciosDisponibles.map((ejercicio) => ejercicio.dificultad)),
+    ],
+    [ejerciciosDisponibles]
   );
 
   const todosLosGrupos = useMemo(() => {
     return [
       "Todos",
-      ...Array.from(new Set(ejercicios.map((ejercicio) => ejercicio.grupoMuscular))).sort(
-        (a, b) => {
-          if (a === "Otros") return 1;
-          if (b === "Otros") return -1;
-          return a.localeCompare(b);
-        }
-      ),
+      ...Array.from(
+        new Set(ejerciciosDisponibles.map((ejercicio) => ejercicio.grupoMuscular))
+      ).sort((a, b) => {
+        if (a === "Otros") return 1;
+        if (b === "Otros") return -1;
+        return a.localeCompare(b);
+      }),
     ];
-  }, []);
+  }, [ejerciciosDisponibles]);
 
   const todosLosEquipamientos = useMemo(() => {
-    const valores = ejercicios.flatMap((ejercicio) => ejercicio.equipamiento ?? []);
+    const valores = ejerciciosDisponibles.flatMap(
+      (ejercicio) => ejercicio.equipamiento ?? []
+    );
     return ["Todos", ...Array.from(new Set(valores)).sort()];
-  }, []);
+  }, [ejerciciosDisponibles]);
 
   const ejerciciosFiltrados = useMemo(
     () =>
-      ejercicios.filter((ejercicio) => {
-        const termino = busqueda.toLowerCase().trim();
+      ejerciciosDisponibles.filter((ejercicio) => {
+        const termino = normalizarBusqueda(busqueda);
         const coincideBusqueda =
           termino.length === 0 ||
-          ejercicio.nombre.toLowerCase().includes(termino) ||
-          ejercicio.grupoMuscular.toLowerCase().includes(termino) ||
-          ejercicio.descripcion?.toLowerCase().includes(termino) ||
+          normalizarBusqueda(ejercicio.nombre).includes(termino) ||
+          normalizarBusqueda(ejercicio.grupoMuscular).includes(termino) ||
+          normalizarBusqueda(ejercicio.descripcion ?? "").includes(termino) ||
           ejercicio.equipamiento?.some((equipo) =>
-            equipo.toLowerCase().includes(termino)
+            normalizarBusqueda(equipo).includes(termino)
           );
 
         const coincideGrupo =
@@ -93,6 +192,8 @@ function App() {
         const coincideVideo = !soloConVideo || Boolean(ejercicio.youtubeId);
         const coincideFavorito =
           !soloFavoritos || favoritos.includes(ejercicio.id);
+        const coincideCreadoPorMi =
+          !soloCreadosPorMi || ejercicio.id.startsWith("custom-");
 
         return (
           coincideBusqueda &&
@@ -100,7 +201,8 @@ function App() {
           coincideDificultad &&
           coincideEquipamiento &&
           coincideVideo &&
-          coincideFavorito
+          coincideFavorito &&
+          coincideCreadoPorMi
         );
       }),
     [
@@ -110,7 +212,9 @@ function App() {
       equipamientoSeleccionado,
       soloConVideo,
       soloFavoritos,
+      soloCreadosPorMi,
       favoritos,
+      ejerciciosDisponibles,
     ]
   );
 
@@ -139,12 +243,20 @@ function App() {
     () =>
       Object.entries(ejerciciosAgrupadosFiltrados).sort(
         ([grupoA], [grupoB]) => {
+          const termino = normalizarBusqueda(busqueda);
+          const grupoANormalizado = normalizarBusqueda(grupoA);
+          const grupoBNormalizado = normalizarBusqueda(grupoB);
+          const grupoACoincide = termino.length > 0 && grupoANormalizado.includes(termino);
+          const grupoBCoincide = termino.length > 0 && grupoBNormalizado.includes(termino);
+
+          if (grupoACoincide && !grupoBCoincide) return -1;
+          if (!grupoACoincide && grupoBCoincide) return 1;
           if (grupoA === "Otros") return 1;
           if (grupoB === "Otros") return -1;
           return grupoA.localeCompare(grupoB);
         }
       ),
-    [ejerciciosAgrupadosFiltrados]
+    [ejerciciosAgrupadosFiltrados, busqueda]
   );
 
   function irAEjercicios() {
@@ -172,6 +284,92 @@ function App() {
     setEquipamientoSeleccionado("Todos");
     setSoloConVideo(false);
     setSoloFavoritos(false);
+    setSoloCreadosPorMi(false);
+    setEjercicioSeleccionado(null);
+  }
+
+  function cargarFotoPersonalizada(archivo: File | undefined) {
+    if (!archivo) return;
+
+    const lector = new FileReader();
+    lector.onload = () => {
+      if (typeof lector.result !== "string") return;
+      setNuevoEjercicio((actual) => ({
+        ...actual,
+        imagen: lector.result as string,
+      }));
+    };
+    lector.readAsDataURL(archivo);
+  }
+
+  function guardarEjercicioPersonalizado(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const nombre = nuevoEjercicio.nombre.trim();
+    if (!nombre) {
+      alert("Ponele un nombre al ejercicio.");
+      return;
+    }
+
+    const equipamiento = nuevoEjercicio.equipamiento
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    const descripcion =
+      nuevoEjercicio.descripcion.trim() ||
+      `Ejercicio personalizado enfocado en ${nuevoEjercicio.grupoMuscular.toLowerCase()}.`;
+
+    const ejercicioCreado: Ejercicio = {
+      id: crearIdEjercicioPersonalizado(nombre),
+      nombre,
+      imagen: nuevoEjercicio.imagen || "/fitapp-logo.png",
+      grupoMuscular: nuevoEjercicio.grupoMuscular,
+      musculoPrincipal: nuevoEjercicio.musculoPrincipal,
+      dificultad: nuevoEjercicio.dificultad,
+      equipamiento,
+      objetivo: "Hipertrofia",
+      tipoEjercicio: "Compuesto",
+      youtubeId: extraerYoutubeId(nuevoEjercicio.youtubeId),
+      descripcion,
+      checklist: [
+        "Ajusta la carga para mantener una tecnica controlada.",
+        "Completa el recorrido sin perder la postura.",
+        "Respira de forma estable durante cada repeticion.",
+      ],
+      erroresComunes: [
+        "Usar mas peso del que podes controlar.",
+        "Acelerar el movimiento y perder tension.",
+        "Cambiar la postura para terminar la serie.",
+      ],
+      mapaDeEnfoque: [
+        { region: nuevoEjercicio.musculoPrincipal, nivel: "principal" },
+      ],
+    };
+
+    setEjerciciosPersonalizados((actuales) => [...actuales, ejercicioCreado]);
+    setNuevoEjercicio(EJERCICIO_PERSONALIZADO_INICIAL);
+    setMostrarCrearEjercicio(false);
+    setGrupoSeleccionado("Todos");
+    setBusqueda("");
+    setEjercicioSeleccionado(null);
+  }
+
+  function eliminarEjercicioPersonalizado(ejercicioId: string) {
+    const ejercicio = ejerciciosPersonalizados.find((item) => item.id === ejercicioId);
+    if (!ejercicio) return;
+
+    const confirmar = window.confirm(
+      `Seguro que queres eliminar "${ejercicio.nombre}"? Tambien se va a sacar de tus rutinas.`
+    );
+
+    if (!confirmar) return;
+
+    setEjerciciosPersonalizados((actuales) =>
+      actuales.filter((item) => item.id !== ejercicioId)
+    );
+    setFavoritos((actuales) => actuales.filter((id) => id !== ejercicioId));
+    rutinas.forEach((rutina) => eliminarEjercicioDeRutina(rutina.id, ejercicioId));
     setEjercicioSeleccionado(null);
   }
 
@@ -357,7 +555,11 @@ function App() {
                 <button type="button" className="boton-volver" onClick={cerrarEjercicio}>
                   ← Volver a la lista
                 </button>
-                <DetalleEjercicio ejercicio={ejercicioSeleccionado} />
+                <DetalleEjercicio
+                  ejercicio={ejercicioSeleccionado}
+                  esPersonalizado={ejercicioSeleccionado.id.startsWith("custom-")}
+                  onEliminarPersonalizado={eliminarEjercicioPersonalizado}
+                />
               </section>
             ) : (
               <>
@@ -381,7 +583,158 @@ function App() {
                 >
                   {mostrarFiltros ? "Ocultar filtros" : "Mostrar filtros"}
                 </button>
+                <button
+                  type="button"
+                  className="boton-primario boton-crear-ejercicio"
+                  onClick={() => setMostrarCrearEjercicio((visible) => !visible)}
+                >
+                  {mostrarCrearEjercicio ? "Cancelar" : "Crear ejercicio"}
+                </button>
               </div>
+
+              {mostrarCrearEjercicio && (
+                <form
+                  className="crear-ejercicio-form"
+                  onSubmit={guardarEjercicioPersonalizado}
+                >
+                  <label>
+                    <span>Nombre</span>
+                    <input
+                      type="text"
+                      placeholder="Ej: Press inclinado en maquina"
+                      value={nuevoEjercicio.nombre}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          nombre: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    <span>Grupo muscular</span>
+                    <select
+                      value={nuevoEjercicio.grupoMuscular}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          grupoMuscular: event.target.value,
+                        }))
+                      }
+                    >
+                      {GRUPOS_PERSONALIZADOS.map((grupo) => (
+                        <option key={grupo} value={grupo}>
+                          {grupo}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Musculo principal</span>
+                    <select
+                      value={nuevoEjercicio.musculoPrincipal}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          musculoPrincipal: event.target.value as RegionMuscular,
+                        }))
+                      }
+                    >
+                      {REGIONES_MUSCULARES.map((region) => (
+                        <option key={region.valor} value={region.valor}>
+                          {region.etiqueta}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Dificultad</span>
+                    <select
+                      value={nuevoEjercicio.dificultad}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          dificultad: event.target.value as Ejercicio["dificultad"],
+                        }))
+                      }
+                    >
+                      <option value="Principiante">Principiante</option>
+                      <option value="Intermedio">Intermedio</option>
+                      <option value="Avanzado">Avanzado</option>
+                    </select>
+                  </label>
+
+                  <label>
+                    <span>Equipamiento</span>
+                    <input
+                      type="text"
+                      placeholder="Mancuernas, banco, polea"
+                      value={nuevoEjercicio.equipamiento}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          equipamiento: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label>
+                    <span>Video de YouTube</span>
+                    <input
+                      type="text"
+                      placeholder="URL o ID del video"
+                      value={nuevoEjercicio.youtubeId}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          youtubeId: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <label className="crear-ejercicio-foto">
+                    <span>Foto personalizada</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) =>
+                        cargarFotoPersonalizada(event.target.files?.[0])
+                      }
+                    />
+                    {nuevoEjercicio.imagen ? (
+                      <img
+                        src={nuevoEjercicio.imagen}
+                        alt="Vista previa del ejercicio"
+                      />
+                    ) : null}
+                  </label>
+
+                  <label className="crear-ejercicio-descripcion">
+                    <span>Descripcion</span>
+                    <textarea
+                      placeholder="Notas rapidas de tecnica o enfoque"
+                      value={nuevoEjercicio.descripcion}
+                      onChange={(event) =>
+                        setNuevoEjercicio((actual) => ({
+                          ...actual,
+                          descripcion: event.target.value,
+                        }))
+                      }
+                    />
+                  </label>
+
+                  <div className="crear-ejercicio-acciones">
+                    <button type="submit" className="boton-primario">
+                      Guardar ejercicio
+                    </button>
+                  </div>
+                </form>
+              )}
 
               <div
                 id="filtros-avanzados"
@@ -448,6 +801,17 @@ function App() {
                       />
                       Favoritos
                     </label>
+
+                    <label className="filtro-toggle">
+                      <input
+                        type="checkbox"
+                        checked={soloCreadosPorMi}
+                        onChange={(event) =>
+                          setSoloCreadosPorMi(event.target.checked)
+                        }
+                      />
+                      Creados por mi
+                    </label>
                   </div>
 
                   <button
@@ -466,6 +830,7 @@ function App() {
                 {ejerciciosVisibles.length} ejercicios encontrados
                 {soloConVideo ? " (solo con video)" : ""}
                 {soloFavoritos ? " (favoritos)" : ""}
+                {soloCreadosPorMi ? " (creados por mi)" : ""}
               </p>
               <p>Listado de ejercicios</p>
             </div>

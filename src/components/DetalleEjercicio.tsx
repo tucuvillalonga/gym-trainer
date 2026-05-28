@@ -3,9 +3,15 @@ import MapaMuscular from "./MapaMuscular";
 
 type Props = {
   ejercicio: Ejercicio;
+  esPersonalizado?: boolean;
+  onEliminarPersonalizado?: (ejercicioId: string) => void;
 };
 
-function DetalleEjercicio({ ejercicio }: Props) {
+function DetalleEjercicio({
+  ejercicio,
+  esPersonalizado = false,
+  onEliminarPersonalizado,
+}: Props) {
   return (
     <section className="detalle">
       <div className="detalle-header">
@@ -40,6 +46,16 @@ function DetalleEjercicio({ ejercicio }: Props) {
                 Ver fuente del ejercicio
               </a>
             </p>
+          ) : null}
+
+          {esPersonalizado && onEliminarPersonalizado ? (
+            <button
+              type="button"
+              className="boton-secundario eliminar detalle-eliminar"
+              onClick={() => onEliminarPersonalizado(ejercicio.id)}
+            >
+              Eliminar ejercicio
+            </button>
           ) : null}
         </div>
       </div>

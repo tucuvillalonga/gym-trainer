@@ -107,7 +107,7 @@ button {
   margin-bottom: 22px;
   flex-shrink: 0;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 10px;
   align-items: center;
 }
@@ -144,6 +144,11 @@ button {
   background: #111827;
   border-color: #60a5fa;
   transform: translateY(-1px);
+}
+
+.boton-crear-ejercicio {
+  min-height: 48px;
+  white-space: nowrap;
 }
 
 .buscador input::placeholder {
@@ -439,6 +444,79 @@ button {
 
 .panel-filtros {
   margin-bottom: 24px;
+}
+
+.crear-ejercicio-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid #1e293b;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.crear-ejercicio-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.crear-ejercicio-form input,
+.crear-ejercicio-form select,
+.crear-ejercicio-form textarea {
+  width: 100%;
+  min-height: 48px;
+  border-radius: 14px;
+  border: 1px solid #1e293b;
+  background: #111827;
+  color: #f9fafb;
+  padding: 12px 14px;
+  font: inherit;
+  outline: none;
+}
+
+.crear-ejercicio-form input[type="file"] {
+  padding: 10px;
+}
+
+.crear-ejercicio-foto img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid #1e293b;
+  background: #0f172a;
+}
+
+.crear-ejercicio-form textarea {
+  min-height: 94px;
+  resize: vertical;
+}
+
+.crear-ejercicio-form input:focus,
+.crear-ejercicio-form select:focus,
+.crear-ejercicio-form textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+.crear-ejercicio-descripcion,
+.crear-ejercicio-acciones {
+  grid-column: 1 / -1;
+}
+
+.crear-ejercicio-acciones {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detalle-eliminar {
+  margin-top: 16px;
 }
 
 .filtros-avanzadas.oculto {
@@ -782,7 +860,7 @@ button {
 
 .filtros-checkboxes {
   display: grid;
-  grid-template-columns: repeat(2, minmax(180px, 1fr));
+  grid-template-columns: repeat(3, minmax(160px, 1fr));
   gap: 12px;
   flex: 1;
   min-width: 220px;
@@ -2354,16 +2432,34 @@ button {
   .buscador input,
   .crear-rutina input,
   .form-group input,
-  .form-group select {
+  .form-group select,
+  .crear-ejercicio-form input,
+  .crear-ejercicio-form select,
+  .crear-ejercicio-form textarea {
     min-height: 46px;
     border-radius: 14px;
     font-size: 16px;
   }
 
-  .boton-filtros-toggle {
+  .boton-filtros-toggle,
+  .boton-crear-ejercicio {
     width: 100%;
     padding: 12px 14px;
     font-size: 14px;
+  }
+
+  .crear-ejercicio-form {
+    grid-template-columns: 1fr;
+    padding: 14px;
+    gap: 14px;
+  }
+
+  .crear-ejercicio-acciones {
+    justify-content: center;
+  }
+
+  .crear-ejercicio-acciones .boton-primario {
+    width: 100%;
   }
 
   .filtros-avanzadas {
@@ -2371,7 +2467,7 @@ button {
   }
 
   .filtros-checkboxes {
-    grid-template-columns: repeat(2, 78px);
+    grid-template-columns: repeat(3, 76px);
     justify-content: center;
     min-width: 0;
     width: 100%;

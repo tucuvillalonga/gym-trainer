@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useHistorial } from "../hooks/useHistorial";
 import type { Rutina, EjercicioRutina } from "../types/rutina";
+import { obtenerEjerciciosPersonalizados } from "../utils/ejerciciosPersonalizados";
 
 type Props = {
   rutina: Rutina;
@@ -13,11 +14,15 @@ type Props = {
 function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const { registrarEntrenamiento } = useHistorial();
   const [indiceActual, setIndiceActual] = useState(0);
+  const ejerciciosCatalogo = useMemo(
+    () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
+    []
+  );
 
   const ejercicioActual: EjercicioRutina | null =
     rutina.ejercicios[indiceActual] ?? null;
   const ejercicio = ejercicioActual
-    ? ejercicios.find((e) => e.id === ejercicioActual.ejercicioId)
+    ? ejerciciosCatalogo.find((e) => e.id === ejercicioActual.ejercicioId)
     : null;
 
   const progreso = ((indiceActual + 1) / rutina.ejercicios.length) * 100;
