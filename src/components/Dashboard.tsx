@@ -132,11 +132,11 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
   const hoy = new Date();
   const diaActual = DIAS_SEMANA[hoy.getDay()];
   const inicioSemanaActual = inicioDeSemana(hoy).getTime();
-  const entrenamientoDeHoy = React.useMemo(
+  const entrenamientosDeHoy = React.useMemo(
     () =>
-      historial.find((entrenamiento) =>
+      historial.filter((entrenamiento) =>
         esMismoDia(new Date(entrenamiento.fechaISO), hoy)
-      ) ?? null,
+      ),
     [historial]
   );
 
@@ -308,15 +308,20 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
   const recomendacionRutina = React.useMemo(() => {
     const rutinaIdHoy = perfil.planSemanal[diaActual];
     const rutinaHoy = rutinas.find((rutina) => rutina.id === rutinaIdHoy);
+    const rutinaHoyCompletada = rutinaHoy
+      ? entrenamientosDeHoy.find(
+          (entrenamiento) => entrenamiento.rutinaId === rutinaHoy.id
+        ) ?? null
+      : null;
 
     if (rutinaHoy) {
       return {
         rutina: rutinaHoy,
         titulo: "Rutina de hoy",
-        detalle: entrenamientoDeHoy
-          ? `Ya completaste tu entrenamiento diario: ${entrenamientoDeHoy.nombre}`
+        detalle: rutinaHoyCompletada
+          ? `Ya completaste tu entrenamiento diario: ${rutinaHoy.nombre}`
           : "Programada para hoy",
-        puedeEmpezar: !entrenamientoDeHoy,
+        puedeEmpezar: !rutinaHoyCompletada,
       };
     }
 
@@ -343,15 +348,15 @@ function Dashboard({ irAEjercicios, irARutinas, onEmpezar }: Props) {
       detalle: "Sugerida / ultima creada",
       puedeEmpezar: true,
     };
-  }, [perfil.planSemanal, rutinas, diaActual, entrenamientoDeHoy]);
+  }, [perfil.planSemanal, rutinas, diaActual, entrenamientosDeHoy]);
 
   const proximaRutina = recomendacionRutina.rutina;
-
+  const nombreUsuario = perfil.nombre.trim() || "vos";
   return (
     <div className="dashboard">
       <div className="hero-card panel">
         <div className="hero-text">
-          <h1>Buenas, {perfil.nombre} 👋</h1>
+          <h1>Buenas, {nombreUsuario}</h1>
           <p className="sub">Listo para entrenar hoy?</p>
         </div>
 

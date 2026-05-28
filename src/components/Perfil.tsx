@@ -24,7 +24,11 @@ const diasPerfil = [
   "domingo",
 ] as const;
 
-function Perfil() {
+type Props = {
+  onReiniciarOnboarding?: () => void;
+};
+
+function Perfil({ onReiniciarOnboarding }: Props) {
   const { rutinas } = useRutinas();
   const { perfil, setPerfil } = usePerfil();
   const { historial, borrarEntrenamiento, limpiarHistorialSemana } = useHistorial();
@@ -69,6 +73,20 @@ function Perfil() {
     if (!confirmar) return;
 
     borrarEntrenamiento(id);
+  }
+
+  function configurarPerfilDeNuevo() {
+    const confirmar = window.confirm(
+      "Queres volver a hacer el onboarding para configurar tu perfil?"
+    );
+
+    if (!confirmar) return;
+
+    setPerfil({
+      ...perfil,
+      onboardingCompletado: false,
+    });
+    onReiniciarOnboarding?.();
   }
 
   function formatearFecha(fechaISO: string) {
@@ -295,6 +313,14 @@ function Perfil() {
 
       <button className="boton-primario" onClick={() => setEditando(true)}>
         Editar perfil
+      </button>
+
+      <button
+        type="button"
+        className="boton-secundario perfil-onboarding-boton"
+        onClick={configurarPerfilDeNuevo}
+      >
+        Volver a hacer el onboarding
       </button>
     </section>
   );

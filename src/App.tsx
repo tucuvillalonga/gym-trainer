@@ -503,9 +503,17 @@ function App() {
       <main className="contenido">
         <div className="topbar">
           <div className="topbar-title">
-            {pantalla === "inicio" && "Inicio"}
-            {pantalla === "ejercicios" && "Ejercicios"}
-            {pantalla === "rutinas" && "Mis rutinas"}
+            {rutinaEnProgreso && !rutinaPausada
+              ? `Haciendo: ${rutinaEnProgreso.nombre}`
+              : pantalla === "inicio"
+              ? "Inicio"
+              : pantalla === "ejercicios"
+              ? "Ejercicios"
+              : pantalla === "rutinas"
+              ? "Mis rutinas"
+              : pantalla === "perfil"
+              ? "Mi perfil"
+              : ""}
           </div>
           {rutinaEnProgreso && rutinaPausada && (
             <button

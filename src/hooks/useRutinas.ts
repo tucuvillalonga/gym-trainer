@@ -29,6 +29,17 @@ export function useRutinas() {
     ]);
   }
 
+  function crearRutinaConEjercicios(nombre: string, ejercicios: EjercicioRutina[]) {
+    const nuevaRutina: Rutina = {
+      id: crearId(),
+      nombre,
+      ejercicios,
+    };
+
+    setRutinas((actuales) => [...actuales, nuevaRutina]);
+    return nuevaRutina;
+  }
+
   function actualizarNombreRutina(rutinaId: string, nombre: string) {
     setRutinas((actuales) =>
       actuales.map((rutina) =>
@@ -109,6 +120,7 @@ export function useRutinas() {
   return {
     rutinas,
     crearRutina,
+    crearRutinaConEjercicios,
     actualizarNombreRutina,
     eliminarRutina,
     agregarEjercicioARutina,

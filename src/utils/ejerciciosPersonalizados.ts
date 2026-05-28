@@ -13,3 +13,7 @@ export function obtenerEjerciciosPersonalizados() {
     return [];
   }
 }
+
+export function guardarEjerciciosPersonalizados(ejercicios: Ejercicio[]) {
+  localStorage.setItem(CLAVE_EJERCICIOS_PERSONALIZADOS, JSON.stringify(ejercicios));
+}
