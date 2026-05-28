@@ -2502,11 +2502,19 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  flex-wrap: wrap;
 }
 
 .workout-header-actions {
   display: flex;
   gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.workout-header .progress {
+  flex: 1 0 100%;
+  width: 100%;
 }
 
 .workout-header h2 {
@@ -2518,6 +2526,25 @@ button {
 .workout-header .muted {
   margin: 0;
   font-size: 14px;
+}
+
+.descanso-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.descanso-selector select {
+  min-height: 42px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #243247;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e5e7eb;
+  font: inherit;
 }
 
 .workout-content {
@@ -2597,6 +2624,73 @@ button {
 
 .enlace-video:hover {
   background: #1d4ed8;
+}
+
+.workout-serie-panel {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 24px;
+}
+
+.workout-serie-panel.descanso-activo {
+  border-color: rgba(96, 165, 250, 0.45);
+  background:
+    linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(15, 23, 42, 0.9)),
+    #0f172a;
+}
+
+.descanso-copy {
+  text-align: center;
+}
+
+.workout-estado {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: #93c5fd;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.descanso-copy h3 {
+  margin: 0;
+  color: white;
+  font-size: 64px;
+  line-height: 1;
+}
+
+.descanso-copy p {
+  margin: 12px auto 0;
+  max-width: 560px;
+  color: #cbd5e1;
+}
+
+.descanso-barra {
+  height: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(147, 197, 253, 0.24);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+}
+
+.descanso-barra-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #22c55e, #60a5fa);
+  transition: width 0.25s ease;
+}
+
+.descanso-acciones {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.descanso-acciones button {
+  min-height: 48px;
 }
 
 .workout-controles {
