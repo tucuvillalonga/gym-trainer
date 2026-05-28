@@ -28,7 +28,7 @@ function Onboarding({ onFinish }: Props) {
     equipamientoDisponible: perfil.equipamientoDisponible || [],
   });
 
-  const totalPasos = 6;
+  const totalPasos = 7;
 
   function actualizar(cambios: Partial<PreferenciasPerfil>) {
     setForm((actual) => ({ ...actual, ...cambios }));
@@ -47,6 +47,7 @@ function Onboarding({ onFinish }: Props) {
     const perfilFinal = {
       ...form,
       ...cambios,
+      nombre: form.nombre.trim(),
       objetivoMensual: Math.max(
         form.objetivoSemanal * 4,
         cambios.objetivoMensual ?? form.objetivoMensual
@@ -56,6 +57,20 @@ function Onboarding({ onFinish }: Props) {
 
     setPerfil(perfilFinal);
     onFinish();
+  }
+
+  function avanzar() {
+    if (paso === 1 && form.nombre.trim().length === 0) {
+      alert("Pone tu nombre para poder crear el perfil.");
+      return;
+    }
+
+    if (paso === totalPasos - 1) {
+      terminar();
+      return;
+    }
+
+    setPaso((actual) => actual + 1);
   }
 
   return (
@@ -79,6 +94,16 @@ function Onboarding({ onFinish }: Props) {
         </div>
 
         {paso === 0 && (
+          <div className="onboarding-step onboarding-bienvenida">
+            <h1>Bienvenido a Fitapp</h1>
+            <p>
+              Vamos a configurar tu perfil para que la app pueda ajustar tus objetivos,
+              tu rutina de hoy y las recomendaciones de descanso.
+            </p>
+          </div>
+        )}
+
+        {paso === 1 && (
           <div className="onboarding-step">
             <h1>Armemos tu perfil</h1>
             <p>Con unas preguntas cortas la app puede ajustar objetivos, tiempo y recomendaciones.</p>
@@ -94,7 +119,7 @@ function Onboarding({ onFinish }: Props) {
           </div>
         )}
 
-        {paso === 1 && (
+        {paso === 2 && (
           <div className="onboarding-step">
             <h1>Objetivo principal</h1>
             <div className="onboarding-opciones">
@@ -121,7 +146,7 @@ function Onboarding({ onFinish }: Props) {
           </div>
         )}
 
-        {paso === 2 && (
+        {paso === 3 && (
           <div className="onboarding-step">
             <h1>Tu nivel</h1>
             <div className="onboarding-opciones">
@@ -147,7 +172,7 @@ function Onboarding({ onFinish }: Props) {
           </div>
         )}
 
-        {paso === 3 && (
+        {paso === 4 && (
           <div className="onboarding-step">
             <h1>Frecuencia</h1>
             <label>
@@ -183,7 +208,7 @@ function Onboarding({ onFinish }: Props) {
           </div>
         )}
 
-        {paso === 4 && (
+        {paso === 5 && (
           <div className="onboarding-step">
             <h1>Equipamiento</h1>
             <div className="onboarding-opciones">
@@ -203,7 +228,7 @@ function Onboarding({ onFinish }: Props) {
           </div>
         )}
 
-        {paso === 5 && (
+        {paso === 6 && (
           <div className="onboarding-step">
             <h1>Listo</h1>
             <p>
@@ -230,9 +255,13 @@ function Onboarding({ onFinish }: Props) {
           <button
             type="button"
             className="boton-primario"
-            onClick={() => (paso === totalPasos - 1 ? terminar() : setPaso((actual) => actual + 1))}
+            onClick={avanzar}
           >
-            {paso === totalPasos - 1 ? "Entrar a la app" : "Continuar"}
+            {paso === totalPasos - 1
+              ? "Entrar a la app"
+              : paso === 0
+              ? "Empezar"
+              : "Continuar"}
           </button>
         </div>
       </section>

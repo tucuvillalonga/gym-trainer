@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import { useRutinas } from "../hooks/useRutinas";
-import { usePerfil, type PreferenciasPerfil } from "../hooks/usePerfil";
+import {
+  crearPerfilDefault,
+  usePerfil,
+  type PreferenciasPerfil,
+} from "../hooks/usePerfil";
 import { useHistorial } from "../hooks/useHistorial";
 import { inicioDeSemana } from "../utils/fechas";
 
@@ -86,6 +90,17 @@ function Perfil({ onReiniciarOnboarding }: Props) {
       ...perfil,
       onboardingCompletado: false,
     });
+    onReiniciarOnboarding?.();
+  }
+
+  function eliminarPerfil() {
+    const confirmar = window.confirm(
+      "Seguro que queres eliminar tu perfil? Vas a volver al onboarding para cargarlo de nuevo."
+    );
+
+    if (!confirmar) return;
+
+    setPerfil(crearPerfilDefault());
     onReiniciarOnboarding?.();
   }
 
@@ -321,6 +336,14 @@ function Perfil({ onReiniciarOnboarding }: Props) {
         onClick={configurarPerfilDeNuevo}
       >
         Volver a hacer el onboarding
+      </button>
+
+      <button
+        type="button"
+        className="boton-secundario boton-peligro perfil-onboarding-boton"
+        onClick={eliminarPerfil}
+      >
+        Eliminar perfil
       </button>
     </section>
   );

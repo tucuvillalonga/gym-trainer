@@ -34,20 +34,24 @@ const DIAS_SEMANA: DiaSemana[] = [
   "sabado",
 ];
 
-const perfilDefault: PreferenciasPerfil = {
-  nombre: "",
-  objetivoSemanal: 5,
-  objetivoMensual: 16,
-  nivelExperiencia: "intermedio",
-  tiempoEntrenamiento: 60,
-  objetivoPrincipal: "hipertrofia",
-  equipamientoDisponible: [],
-  onboardingCompletado: false,
-  planSemanal: DIAS_SEMANA.reduce((plan, dia) => {
-    plan[dia] = "";
-    return plan;
-  }, {} as Record<DiaSemana, string>),
-};
+export function crearPerfilDefault(): PreferenciasPerfil {
+  return {
+    nombre: "",
+    objetivoSemanal: 5,
+    objetivoMensual: 16,
+    nivelExperiencia: "intermedio",
+    tiempoEntrenamiento: 60,
+    objetivoPrincipal: "hipertrofia",
+    equipamientoDisponible: [],
+    onboardingCompletado: false,
+    planSemanal: DIAS_SEMANA.reduce((plan, dia) => {
+      plan[dia] = "";
+      return plan;
+    }, {} as Record<DiaSemana, string>),
+  };
+}
+
+export const perfilDefault: PreferenciasPerfil = crearPerfilDefault();
 
 function leerPerfil() {
   try {
@@ -61,6 +65,11 @@ function leerPerfil() {
 
 function guardarPerfil(perfil: PreferenciasPerfil) {
   localStorage.setItem(CLAVE_PERFIL, JSON.stringify(perfil));
+  window.dispatchEvent(new Event(EVENTO_PERFIL));
+}
+
+export function borrarPerfilGuardado() {
+  localStorage.setItem(CLAVE_PERFIL, JSON.stringify(crearPerfilDefault()));
   window.dispatchEvent(new Event(EVENTO_PERFIL));
 }
 

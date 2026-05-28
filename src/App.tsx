@@ -9,6 +9,8 @@ import MisRutinas from "./components/MisRutinas";
 import Dashboard from "./components/Dashboard";
 import Perfil from "./components/Perfil";
 import WorkoutRunner from "./components/WorkoutRunner";
+import Onboarding from "./components/Onboarding";
+import { usePerfil } from "./hooks/usePerfil";
 import {
   CLAVE_EJERCICIOS_PERSONALIZADOS,
   obtenerEjerciciosPersonalizados,
@@ -97,6 +99,11 @@ function App() {
   const [indiceRutinaActual, setIndiceRutinaActual] = useState(0);
   const [rutinasRestaurada, setRutinasRestaurada] = useState(false);
   const { rutinas, eliminarEjercicioDeRutina } = useRutinas();
+  const { perfil } = usePerfil();
+  const necesitaOnboarding =
+    !perfil.onboardingCompletado || perfil.nombre.trim().length === 0;
+  const [mostrarOnboarding, setMostrarOnboarding] =
+    useState(necesitaOnboarding);
   const [busqueda, setBusqueda] = useState("");
   const [grupoSeleccionado, setGrupoSeleccionado] = useState("Todos");
   const [pantalla, setPantalla] = useState<"inicio" | "ejercicios" | "rutinas" | "perfil">(
@@ -123,6 +130,12 @@ function App() {
   useEffect(() => {
     localStorage.setItem(CLAVE_FAVORITOS, JSON.stringify(favoritos));
   }, [favoritos]);
+
+  useEffect(() => {
+    if (necesitaOnboarding) {
+      setMostrarOnboarding(true);
+    }
+  }, [necesitaOnboarding]);
 
   useEffect(() => {
     localStorage.setItem(
@@ -450,6 +463,10 @@ function App() {
     localStorage.setItem(CLAVE_RUTINA_GUARDADA, JSON.stringify(payload));
   }, [rutinaEnProgreso, indiceRutinaActual, rutinaPausada]);
 
+  if (mostrarOnboarding) {
+    return <Onboarding onFinish={() => setMostrarOnboarding(false)} />;
+  }
+
   return (
     <div className="layout">
       <aside className="sidebar">
@@ -555,7 +572,7 @@ function App() {
         ) : pantalla === "rutinas" ? (
           <MisRutinas onEmpezar={iniciarEntrenamiento} />
         ) : pantalla === "perfil" ? (
-          <Perfil />
+          <Perfil onReiniciarOnboarding={() => setMostrarOnboarding(true)} />
         ) : pantalla === "ejercicios" && (
           <>
             {ejercicioSeleccionado ? (
