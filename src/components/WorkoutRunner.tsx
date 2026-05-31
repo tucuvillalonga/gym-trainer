@@ -12,6 +12,12 @@ type Props = {
 };
 
 const DESCANSO_INICIAL = 90;
+const OPCIONES_DESCANSO = [
+  { id: "90s", etiqueta: "90 segundos", segundos: 90 },
+  { id: "2m", etiqueta: "2 min", segundos: 120 },
+  { id: "3m", etiqueta: "3 min", segundos: 180 },
+  { id: "4m", etiqueta: "4 min", segundos: 240 },
+];
 
 function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const { registrarEntrenamiento } = useHistorial();
@@ -19,9 +25,10 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const [serieActual, setSerieActual] = useState(1);
   const [descansando, setDescansando] = useState(false);
   const [descansoPausado, setDescansoPausado] = useState(false);
-  const [duracionDescanso, setDuracionDescanso] = useState(DESCANSO_INICIAL);
+  const [descansoSeleccionado, setDescansoSeleccionado] = useState("90s");
   const [segundosDescanso, setSegundosDescanso] = useState(DESCANSO_INICIAL);
   const [entrenamientoCompletado, setEntrenamientoCompletado] = useState(false);
+  const [avisoDescanso, setAvisoDescanso] = useState<string | null>(null);
 
   const ejerciciosCatalogo = useMemo(
     () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
@@ -33,6 +40,9 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const ejercicio = ejercicioActual
     ? ejerciciosCatalogo.find((e) => e.id === ejercicioActual.ejercicioId)
     : null;
+  const duracionDescanso =
+    OPCIONES_DESCANSO.find((opcion) => opcion.id === descansoSeleccionado)?.segundos ??
+    DESCANSO_INICIAL;
 
   const totalSeries = rutina.ejercicios.reduce(
     (total, item) => total + Math.max(1, item.series),
@@ -72,22 +82,35 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
     if (!ejercicioActual) return;
 
     if (serieActual < Math.max(1, ejercicioActual.series)) {
+      setAvisoDescanso(`Descanso terminado. Vamos con la serie ${serieActual + 1}.`);
       setSerieActual((actual) => actual + 1);
       return;
     }
 
     if (!esUltimoEjercicio) {
       const nuevo = indiceActual + 1;
+      const proximo = rutina.ejercicios[nuevo];
+      const ejercicioProximo = proximo
+        ? ejerciciosCatalogo.find((item) => item.id === proximo.ejercicioId)
+        : null;
+
+      setAvisoDescanso(
+        ejercicioProximo
+          ? `Descanso terminado. Sigue ${ejercicioProximo.nombre}.`
+          : "Descanso terminado. Sigue el proximo ejercicio."
+      );
       setIndiceActual(nuevo);
       setSerieActual(1);
       onIndexChange?.(nuevo);
     }
   }, [
     duracionDescanso,
+    ejerciciosCatalogo,
     ejercicioActual,
     esUltimoEjercicio,
     indiceActual,
     onIndexChange,
+    rutina.ejercicios,
     serieActual,
   ]);
 
@@ -115,6 +138,16 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
       setSegundosDescanso(duracionDescanso);
     }
   }, [descansando, duracionDescanso]);
+
+  useEffect(() => {
+    if (!avisoDescanso) return;
+
+    const timeoutId = window.setTimeout(() => {
+      setAvisoDescanso(null);
+    }, 5000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [avisoDescanso]);
 
   function marcarCompletado() {
     if (!ejercicioActual || descansando || entrenamientoCompletado) return;
@@ -175,15 +208,15 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
           <label className="descanso-selector">
             <span>Descanso</span>
             <select
-              value={duracionDescanso}
+              value={descansoSeleccionado}
               disabled={descansando}
-              onChange={(event) => setDuracionDescanso(Number(event.target.value))}
+              onChange={(event) => setDescansoSeleccionado(event.target.value)}
             >
-              <option value={45}>45s</option>
-              <option value={60}>60s</option>
-              <option value={90}>90s</option>
-              <option value={120}>120s</option>
-              <option value={180}>180s</option>
+              {OPCIONES_DESCANSO.map((opcion) => (
+                <option key={opcion.id} value={opcion.id}>
+                  {opcion.etiqueta}
+                </option>
+              ))}
             </select>
           </label>
           <button className="boton-secundario" onClick={onCancel}>
@@ -195,7 +228,13 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
         </div>
       </div>
 
-      <div className="workout-content">
+        <div className="workout-content">
+        {avisoDescanso && (
+          <div className="aviso-descanso" role="status" aria-live="polite">
+            {avisoDescanso}
+          </div>
+        )}
+
         <div className="ejercicio-display panel">
           <img src={ejercicio.imagen} alt={ejercicio.nombre} />
           <div className="ejercicio-info">
