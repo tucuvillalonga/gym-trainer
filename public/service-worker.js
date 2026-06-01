@@ -1,4 +1,4 @@
-const CACHE_NAME = "fitapp-pwa-v1";
+const CACHE_NAME = "fitapp-pwa-v2";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/fitapp-logo.png", "/favicon.svg"];
 const notificationTimers = new Map();
 

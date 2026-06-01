@@ -14,6 +14,8 @@ export type LocalNotification = {
   data?: Record<string, unknown>;
 };
 
+const localNotificationTimeouts = new Map<string, number>();
+
 export function getNotificationAvailability(): NotificationAvailability {
   if (!("Notification" in window) || !("serviceWorker" in navigator)) {
     return "unsupported";
@@ -58,6 +60,8 @@ async function getReadyRegistration() {
 export async function scheduleLocalNotification(notification: LocalNotification) {
   if (getNotificationAvailability() !== "granted") return;
 
+  schedulePageFallbackNotification(notification);
+
   const registration = await getReadyRegistration();
   const worker = registration?.active ?? registration?.waiting ?? registration?.installing;
   worker?.postMessage({
@@ -74,6 +78,8 @@ export async function showLocalNotification(notification: LocalNotification) {
 }
 
 export async function cancelLocalNotification(id: string) {
+  clearPageFallbackNotification(id);
+
   if (!("serviceWorker" in navigator)) return;
 
   const registration = await navigator.serviceWorker.getRegistration();
@@ -98,4 +104,35 @@ export async function scheduleRestNotification(endsAt: number, body: string) {
 
 export async function cancelRestNotification() {
   await cancelLocalNotification("fitapp-rest-timer");
+}
+
+function schedulePageFallbackNotification(notification: LocalNotification) {
+  clearPageFallbackNotification(notification.id);
+
+  const delay = Math.max(0, Number(notification.at || Date.now()) - Date.now());
+  const timeoutId = window.setTimeout(async () => {
+    localNotificationTimeouts.delete(notification.id);
+
+    if (getNotificationAvailability() !== "granted") return;
+
+    const registration = await getReadyRegistration();
+    await registration?.showNotification(notification.title, {
+      body: notification.body,
+      icon: "/fitapp-logo.png",
+      badge: "/fitapp-logo.png",
+      tag: notification.tag || notification.id,
+      requireInteraction: Boolean(notification.requireInteraction),
+      data: notification.data || { url: "/" },
+    });
+  }, delay);
+
+  localNotificationTimeouts.set(notification.id, timeoutId);
+}
+
+function clearPageFallbackNotification(id: string) {
+  const timeoutId = localNotificationTimeouts.get(id);
+  if (!timeoutId) return;
+
+  window.clearTimeout(timeoutId);
+  localNotificationTimeouts.delete(id);
 }
