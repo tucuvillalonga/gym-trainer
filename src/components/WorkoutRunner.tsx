@@ -3,6 +3,13 @@ import { ejercicios } from "../data/ejercicios";
 import { useHistorial } from "../hooks/useHistorial";
 import type { Rutina, EjercicioRutina } from "../types/rutina";
 import { obtenerEjerciciosPersonalizados } from "../utils/ejerciciosPersonalizados";
+import {
+  cancelRestNotification,
+  getNotificationAvailability,
+  requestRestNotificationPermission,
+  scheduleRestNotification,
+  type NotificationAvailability,
+} from "../utils/pwa";
 
 type Props = {
   rutina: Rutina;
@@ -27,8 +34,11 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const [descansoPausado, setDescansoPausado] = useState(false);
   const [descansoSeleccionado, setDescansoSeleccionado] = useState("90s");
   const [segundosDescanso, setSegundosDescanso] = useState(DESCANSO_INICIAL);
+  const [finDescanso, setFinDescanso] = useState<number | null>(null);
   const [entrenamientoCompletado, setEntrenamientoCompletado] = useState(false);
   const [avisoDescanso, setAvisoDescanso] = useState<string | null>(null);
+  const [estadoNotificaciones, setEstadoNotificaciones] =
+    useState<NotificationAvailability>(() => getNotificationAvailability());
 
   const ejerciciosCatalogo = useMemo(
     () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
@@ -65,12 +75,19 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const minutosDescanso = Math.floor(segundosDescanso / 60);
   const segundosRestantes = segundosDescanso % 60;
   const tiempoDescanso = `${minutosDescanso}:${String(segundosRestantes).padStart(2, "0")}`;
+  const detalleProximoDescanso = esUltimaSerie
+    ? siguienteEjercicioCatalogo
+      ? `Despues sigue ${siguienteEjercicioCatalogo.nombre}.`
+      : "Despues sigue el proximo ejercicio."
+    : `Despues vas con la serie ${serieActual + 1}.`;
 
   const reiniciarEstadoDeSerie = useCallback(() => {
     setSerieActual(1);
     setDescansando(false);
     setDescansoPausado(false);
     setSegundosDescanso(duracionDescanso);
+    setFinDescanso(null);
+    cancelRestNotification();
     setEntrenamientoCompletado(false);
   }, [duracionDescanso]);
 
@@ -78,6 +95,8 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
     setDescansando(false);
     setDescansoPausado(false);
     setSegundosDescanso(duracionDescanso);
+    setFinDescanso(null);
+    cancelRestNotification();
 
     if (!ejercicioActual) return;
 
@@ -121,23 +140,40 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   useEffect(() => {
     if (!descansando || descansoPausado) return;
 
-    if (segundosDescanso <= 0) {
-      finalizarDescanso();
-      return;
-    }
+    if (!finDescanso) return;
 
-    const timeoutId = window.setTimeout(() => {
-      setSegundosDescanso((actual) => Math.max(0, actual - 1));
-    }, 1000);
+    const actualizarRestante = () => {
+      const restante = Math.max(0, Math.ceil((finDescanso - Date.now()) / 1000));
+      setSegundosDescanso(restante);
 
-    return () => window.clearTimeout(timeoutId);
-  }, [descansando, descansoPausado, finalizarDescanso, segundosDescanso]);
+      if (restante <= 0) {
+        finalizarDescanso();
+      }
+    };
+
+    actualizarRestante();
+
+    const timeoutId = window.setInterval(actualizarRestante, 500);
+    return () => window.clearInterval(timeoutId);
+  }, [descansando, descansoPausado, finalizarDescanso, finDescanso, segundosDescanso]);
 
   useEffect(() => {
-    if (!descansando) {
-      setSegundosDescanso(duracionDescanso);
+    if (!descansando || descansoPausado || !finDescanso) return;
+
+    scheduleRestNotification(finDescanso, detalleProximoDescanso);
+  }, [descansando, descansoPausado, detalleProximoDescanso, finDescanso]);
+
+  useEffect(() => {
+    if (descansando && descansoPausado) {
+      cancelRestNotification();
     }
-  }, [descansando, duracionDescanso]);
+  }, [descansando, descansoPausado]);
+
+  useEffect(() => {
+    return () => {
+      cancelRestNotification();
+    };
+  }, []);
 
   useEffect(() => {
     if (!avisoDescanso) return;
@@ -160,6 +196,39 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
     setDescansando(true);
     setDescansoPausado(false);
     setSegundosDescanso(duracionDescanso);
+    setFinDescanso(Date.now() + duracionDescanso * 1000);
+  }
+
+  async function activarNotificaciones() {
+    const permiso = await requestRestNotificationPermission();
+    setEstadoNotificaciones(permiso);
+  }
+
+  function cambiarDescansoSeleccionado(valor: string) {
+    setDescansoSeleccionado(valor);
+
+    const segundos =
+      OPCIONES_DESCANSO.find((opcion) => opcion.id === valor)?.segundos ??
+      DESCANSO_INICIAL;
+    setSegundosDescanso(segundos);
+  }
+
+  function alternarPausaDescanso() {
+    setDescansoPausado((pausado) => {
+      if (pausado) {
+        setFinDescanso(Date.now() + segundosDescanso * 1000);
+      } else {
+        setFinDescanso(null);
+        cancelRestNotification();
+      }
+
+      return !pausado;
+    });
+  }
+
+  function sumarDescanso(segundos: number) {
+    setSegundosDescanso((actual) => actual + segundos);
+    setFinDescanso((actual) => (actual ? actual + segundos * 1000 : null));
   }
 
   function irAlSiguiente() {
@@ -210,7 +279,7 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
             <select
               value={descansoSeleccionado}
               disabled={descansando}
-              onChange={(event) => setDescansoSeleccionado(event.target.value)}
+              onChange={(event) => cambiarDescansoSeleccionado(event.target.value)}
             >
               {OPCIONES_DESCANSO.map((opcion) => (
                 <option key={opcion.id} value={opcion.id}>
@@ -219,6 +288,29 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
               ))}
             </select>
           </label>
+          {estadoNotificaciones !== "unsupported" && (
+            <button
+              type="button"
+              className={`boton-notificaciones ${
+                estadoNotificaciones === "granted" ? "activo" : ""
+              }`}
+              onClick={activarNotificaciones}
+              disabled={estadoNotificaciones === "granted" || estadoNotificaciones === "denied"}
+              title={
+                estadoNotificaciones === "granted"
+                  ? "Notificaciones activas"
+                  : estadoNotificaciones === "denied"
+                    ? "Permiso bloqueado en el navegador"
+                    : "Activar notificaciones de descanso"
+              }
+            >
+              {estadoNotificaciones === "granted"
+                ? "Notificaciones activas"
+                : estadoNotificaciones === "denied"
+                  ? "Notificaciones bloqueadas"
+                  : "Activar notificaciones"}
+            </button>
+          )}
           <button className="boton-secundario" onClick={onCancel}>
             Salir
           </button>
@@ -282,11 +374,7 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
                 <span className="workout-estado">Descanso</span>
                 <h3>{tiempoDescanso}</h3>
                 <p>
-                  {esUltimaSerie
-                    ? siguienteEjercicioCatalogo
-                      ? `Despues sigue ${siguienteEjercicioCatalogo.nombre}.`
-                      : "Despues sigue el proximo ejercicio."
-                    : `Despues vas con la serie ${serieActual + 1}.`}
+                  {detalleProximoDescanso}
                 </p>
               </div>
 
@@ -303,14 +391,14 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
                 <button
                   type="button"
                   className="boton-secundario"
-                  onClick={() => setDescansoPausado((pausado) => !pausado)}
+                  onClick={alternarPausaDescanso}
                 >
                   {descansoPausado ? "Reanudar" : "Pausar"}
                 </button>
                 <button
                   type="button"
                   className="boton-secundario"
-                  onClick={() => setSegundosDescanso((actual) => actual + 15)}
+                  onClick={() => sumarDescanso(15)}
                 >
                   +15s
                 </button>
