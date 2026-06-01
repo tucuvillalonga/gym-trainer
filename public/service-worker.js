@@ -1,6 +1,6 @@
 const CACHE_NAME = "fitapp-pwa-v1";
 const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/fitapp-logo.png", "/favicon.svg"];
-const restTimers = new Map();
+const notificationTimers = new Map();
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -45,35 +45,35 @@ self.addEventListener("message", (event) => {
   const { type, payload } = event.data || {};
   if (!payload?.id) return;
 
-  if (type === "CANCEL_REST_NOTIFICATION") {
-    clearRestTimer(payload.id);
+  if (type === "CANCEL_NOTIFICATION") {
+    clearNotificationTimer(payload.id);
     return;
   }
 
-  if (type === "SCHEDULE_REST_NOTIFICATION") {
-    clearRestTimer(payload.id);
+  if (type === "SCHEDULE_NOTIFICATION") {
+    clearNotificationTimer(payload.id);
 
-    const delay = Math.max(0, Number(payload.endsAt) - Date.now());
+    const delay = Math.max(0, Number(payload.at || Date.now()) - Date.now());
     const timeoutId = setTimeout(() => {
-      restTimers.delete(payload.id);
-      self.registration.showNotification(payload.title || "Descanso terminado", {
-        body: payload.body || "Volve a la rutina.",
+      notificationTimers.delete(payload.id);
+      self.registration.showNotification(payload.title || "FITAPP", {
+        body: payload.body || "",
         icon: "/fitapp-logo.png",
         badge: "/fitapp-logo.png",
-        tag: payload.id,
+        tag: payload.tag || payload.id,
         renotify: true,
-        requireInteraction: true,
-        data: { url: "/" },
+        requireInteraction: Boolean(payload.requireInteraction),
+        data: payload.data || { url: "/" },
       });
     }, delay);
 
-    restTimers.set(payload.id, timeoutId);
+    notificationTimers.set(payload.id, timeoutId);
   }
 });
 
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || "/";
+  const targetUrl = buildNotificationUrl(event.notification.data);
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
@@ -93,10 +93,24 @@ self.addEventListener("notificationclick", (event) => {
   );
 });
 
-function clearRestTimer(id) {
-  const timeoutId = restTimers.get(id);
+function clearNotificationTimer(id) {
+  const timeoutId = notificationTimers.get(id);
   if (timeoutId) {
     clearTimeout(timeoutId);
-    restTimers.delete(id);
+    notificationTimers.delete(id);
   }
+}
+
+function buildNotificationUrl(data) {
+  if (!data?.intent) return data?.url || "/";
+
+  const url = new URL("/", self.location.origin);
+  url.searchParams.set("notificationIntent", data.intent);
+
+  if (data.rutinaId) url.searchParams.set("rutinaId", data.rutinaId);
+  if (Number.isFinite(Number(data.indice))) {
+    url.searchParams.set("indice", String(data.indice));
+  }
+
+  return url.pathname + url.search;
 }

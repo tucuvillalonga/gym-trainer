@@ -11,6 +11,8 @@ export type Entrenamiento = {
   nombre: string;
   fechaISO: string;
   ejercicios: { ejercicioId: string }[];
+  duracionSegundos: number;
+  ejerciciosCompletados: number;
 };
 
 function generarId() {
@@ -48,13 +50,18 @@ export function useHistorial() {
     };
   }, []);
 
-  function registrarEntrenamiento(rutina: Rutina) {
+  function registrarEntrenamiento(
+    rutina: Rutina,
+    detalles?: { duracionSegundos?: number; ejerciciosCompletados?: number }
+  ) {
     const nuevo: Entrenamiento = {
       id: generarId(),
       rutinaId: rutina.id,
       nombre: rutina.nombre,
       fechaISO: new Date().toISOString(),
       ejercicios: rutina.ejercicios.map((e) => ({ ejercicioId: e.ejercicioId })),
+      duracionSegundos: detalles?.duracionSegundos ?? 0,
+      ejerciciosCompletados: detalles?.ejerciciosCompletados ?? rutina.ejercicios.length,
     };
 
     const actualizado = [nuevo, ...leerHistorial()];

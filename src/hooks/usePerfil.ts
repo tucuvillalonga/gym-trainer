@@ -19,6 +19,8 @@ export type PreferenciasPerfil = {
   objetivoPrincipal?: "hipertrofia" | "fuerza" | "bajar-grasa" | "salud";
   equipamientoDisponible?: string[];
   onboardingCompletado?: boolean;
+  notificacionesActivadas?: boolean;
+  horaNotificacionEntrenamiento?: string;
 };
 
 const CLAVE_PERFIL = "gym-trainer-perfil";
@@ -37,13 +39,15 @@ const DIAS_SEMANA: DiaSemana[] = [
 export function crearPerfilDefault(): PreferenciasPerfil {
   return {
     nombre: "",
-    objetivoSemanal: 5,
+    objetivoSemanal: 4,
     objetivoMensual: 16,
     nivelExperiencia: "intermedio",
     tiempoEntrenamiento: 60,
     objetivoPrincipal: "hipertrofia",
     equipamientoDisponible: [],
     onboardingCompletado: false,
+    notificacionesActivadas: false,
+    horaNotificacionEntrenamiento: "19:00",
     planSemanal: DIAS_SEMANA.reduce((plan, dia) => {
       plan[dia] = "";
       return plan;

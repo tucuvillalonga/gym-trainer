@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ejercicios } from "../data/ejercicios";
 import { useHistorial } from "../hooks/useHistorial";
+import { usePerfil } from "../hooks/usePerfil";
 import type { Rutina, EjercicioRutina } from "../types/rutina";
 import { obtenerEjerciciosPersonalizados } from "../utils/ejerciciosPersonalizados";
+import { cancelRestNotification, scheduleRestNotification } from "../utils/pwa";
 import {
-  cancelRestNotification,
-  getNotificationAvailability,
-  requestRestNotificationPermission,
-  scheduleRestNotification,
-  type NotificationAvailability,
-} from "../utils/pwa";
+  notificarObjetivoSemanalSiHaceFalta,
+  notificarResumenPostEntreno,
+} from "../utils/notificaciones";
 
 type Props = {
   rutina: Rutina;
   onFinish: () => void;
   onCancel: () => void;
   onIndexChange?: (index: number) => void;
+  onProgress?: () => void;
 };
 
 const DESCANSO_INICIAL = 90;
@@ -26,8 +26,15 @@ const OPCIONES_DESCANSO = [
   { id: "4m", etiqueta: "4 min", segundos: 240 },
 ];
 
-function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
-  const { registrarEntrenamiento } = useHistorial();
+function WorkoutRunner({
+  rutina,
+  onFinish,
+  onCancel,
+  onIndexChange,
+  onProgress,
+}: Props) {
+  const { historial, registrarEntrenamiento } = useHistorial();
+  const { perfil } = usePerfil();
   const [indiceActual, setIndiceActual] = useState(0);
   const [serieActual, setSerieActual] = useState(1);
   const [descansando, setDescansando] = useState(false);
@@ -37,8 +44,7 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   const [finDescanso, setFinDescanso] = useState<number | null>(null);
   const [entrenamientoCompletado, setEntrenamientoCompletado] = useState(false);
   const [avisoDescanso, setAvisoDescanso] = useState<string | null>(null);
-  const [estadoNotificaciones, setEstadoNotificaciones] =
-    useState<NotificationAvailability>(() => getNotificationAvailability());
+  const [inicioEntrenamiento] = useState(() => Date.now());
 
   const ejerciciosCatalogo = useMemo(
     () => [...ejercicios, ...obtenerEjerciciosPersonalizados()],
@@ -188,6 +194,8 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   function marcarCompletado() {
     if (!ejercicioActual || descansando || entrenamientoCompletado) return;
 
+    onProgress?.();
+
     if (esUltimaSerie && esUltimoEjercicio) {
       setEntrenamientoCompletado(true);
       return;
@@ -197,11 +205,6 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
     setDescansoPausado(false);
     setSegundosDescanso(duracionDescanso);
     setFinDescanso(Date.now() + duracionDescanso * 1000);
-  }
-
-  async function activarNotificaciones() {
-    const permiso = await requestRestNotificationPermission();
-    setEstadoNotificaciones(permiso);
   }
 
   function cambiarDescansoSeleccionado(valor: string) {
@@ -250,7 +253,12 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
   }
 
   function terminarRutina() {
-    registrarEntrenamiento(rutina);
+    const entrenamiento = registrarEntrenamiento(rutina, {
+      duracionSegundos: Math.max(0, Math.round((Date.now() - inicioEntrenamiento) / 1000)),
+      ejerciciosCompletados: rutina.ejercicios.length,
+    });
+    notificarResumenPostEntreno(rutina, entrenamiento);
+    notificarObjetivoSemanalSiHaceFalta(perfil, [entrenamiento, ...historial]);
     alert(`Rutina "${rutina.nombre}" registrada como completada. Excelente trabajo!`);
     onFinish();
   }
@@ -288,29 +296,6 @@ function WorkoutRunner({ rutina, onFinish, onCancel, onIndexChange }: Props) {
               ))}
             </select>
           </label>
-          {estadoNotificaciones !== "unsupported" && (
-            <button
-              type="button"
-              className={`boton-notificaciones ${
-                estadoNotificaciones === "granted" ? "activo" : ""
-              }`}
-              onClick={activarNotificaciones}
-              disabled={estadoNotificaciones === "granted" || estadoNotificaciones === "denied"}
-              title={
-                estadoNotificaciones === "granted"
-                  ? "Notificaciones activas"
-                  : estadoNotificaciones === "denied"
-                    ? "Permiso bloqueado en el navegador"
-                    : "Activar notificaciones de descanso"
-              }
-            >
-              {estadoNotificaciones === "granted"
-                ? "Notificaciones activas"
-                : estadoNotificaciones === "denied"
-                  ? "Notificaciones bloqueadas"
-                  : "Activar notificaciones"}
-            </button>
-          )}
           <button className="boton-secundario" onClick={onCancel}>
             Salir
           </button>

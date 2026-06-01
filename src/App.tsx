@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { ejercicios } from "./data/ejercicios";
 import { useRutinas } from "./hooks/useRutinas";
+import { useHistorial } from "./hooks/useHistorial";
 import type { Ejercicio, RegionMuscular } from "./types/ejercicio";
 import type { Rutina } from "./types/rutina";
 import TarjetaEjercicio from "./components/TarjetaEjercicio";
@@ -15,10 +16,15 @@ import {
   CLAVE_EJERCICIOS_PERSONALIZADOS,
   obtenerEjerciciosPersonalizados,
 } from "./utils/ejerciciosPersonalizados";
+import {
+  limpiarProgresoRutina,
+  leerProgresoRutina,
+  guardarProgresoRutina,
+  programarRecordatorioEntrenamiento,
+  programarRutinaIncompleta,
+} from "./utils/notificaciones";
 
 const CLAVE_FAVORITOS = "gym-trainer-favoritos";
-const CLAVE_RUTINA_GUARDADA = "gym-trainer-rutina-guardada";
-
 const GRUPOS_PERSONALIZADOS = [
   "Pecho",
   "Espalda",
@@ -99,6 +105,7 @@ function App() {
   const [indiceRutinaActual, setIndiceRutinaActual] = useState(0);
   const [rutinasRestaurada, setRutinasRestaurada] = useState(false);
   const { rutinas, eliminarEjercicioDeRutina } = useRutinas();
+  const { historial } = useHistorial();
   const { perfil } = usePerfil();
   const necesitaOnboarding =
     !perfil.onboardingCompletado || perfil.nombre.trim().length === 0;
@@ -133,7 +140,7 @@ function App() {
 
   useEffect(() => {
     if (necesitaOnboarding) {
-      setMostrarOnboarding(true);
+      window.setTimeout(() => setMostrarOnboarding(true), 0);
     }
   }, [necesitaOnboarding]);
 
@@ -418,50 +425,82 @@ function App() {
 
   function finalizarEntrenamiento() {
     setRutinaEnProgreso(null);
-    localStorage.removeItem(CLAVE_RUTINA_GUARDADA);
+    limpiarProgresoRutina();
   }
 
   // Restaurar rutina guardada (si existe) SOLO una vez al montar
   useEffect(() => {
     if (rutinasRestaurada) return;
 
-    const guardada = localStorage.getItem(CLAVE_RUTINA_GUARDADA);
+    const guardada = leerProgresoRutina();
     if (!guardada) {
-      setRutinasRestaurada(true);
+      window.setTimeout(() => setRutinasRestaurada(true), 0);
       return;
     }
 
     try {
-      const parsed = JSON.parse(guardada);
-      const { rutinaId, indice = 0, pausada = false } = parsed;
+      const { rutinaId, indice = 0, pausada = false } = guardada;
       const encontrada = rutinas.find((r) => r.id === rutinaId);
       if (encontrada) {
-        setRutinaEnProgreso(encontrada);
-        setIndiceRutinaActual(indice);
-        setRutinaPausada(pausada);
+        window.setTimeout(() => {
+          setRutinaEnProgreso(encontrada);
+          setIndiceRutinaActual(indice);
+          setRutinaPausada(pausada);
+          programarRutinaIncompleta(guardada);
+        }, 0);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
 
-    setRutinasRestaurada(true);
+    window.setTimeout(() => setRutinasRestaurada(true), 0);
   }, []);
 
   // Sincronizar rutina en progreso en localStorage
   useEffect(() => {
     if (!rutinaEnProgreso) {
-      localStorage.removeItem(CLAVE_RUTINA_GUARDADA);
       return;
     }
 
-    const payload = {
-      rutinaId: rutinaEnProgreso.id,
-      indice: indiceRutinaActual,
-      pausada: rutinaPausada,
-    };
-
-    localStorage.setItem(CLAVE_RUTINA_GUARDADA, JSON.stringify(payload));
+    guardarProgresoRutina(rutinaEnProgreso, indiceRutinaActual, rutinaPausada);
   }, [rutinaEnProgreso, indiceRutinaActual, rutinaPausada]);
+
+  useEffect(() => {
+    if (!perfil.notificacionesActivadas) return;
+    programarRecordatorioEntrenamiento(perfil, historial, rutinas);
+  }, [historial, perfil, rutinas]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const intent = params.get("notificationIntent");
+    if (!intent) return;
+
+    window.setTimeout(() => {
+      if (intent === "open-routines") {
+        setPantalla("rutinas");
+        setRutinaPausada(true);
+      }
+
+      if (intent === "open-profile") {
+        setPantalla("perfil");
+        setRutinaPausada(true);
+      }
+
+      if (intent === "resume-workout") {
+        const rutinaId = params.get("rutinaId") || leerProgresoRutina()?.rutinaId;
+        const indice = Number(params.get("indice") ?? leerProgresoRutina()?.indice ?? 0);
+        const encontrada = rutinas.find((rutina) => rutina.id === rutinaId);
+
+        if (encontrada) {
+          setRutinaEnProgreso(encontrada);
+          setIndiceRutinaActual(Number.isFinite(indice) ? indice : 0);
+          setRutinaPausada(false);
+        }
+      }
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }, 0);
+  }, [rutinas]);
 
   if (mostrarOnboarding) {
     return <Onboarding onFinish={() => setMostrarOnboarding(false)} />;
@@ -566,6 +605,13 @@ function App() {
             onFinish={finalizarEntrenamiento}
             onCancel={finalizarEntrenamiento}
             onIndexChange={(i) => setIndiceRutinaActual(i)}
+            onProgress={() =>
+              guardarProgresoRutina(
+                rutinaEnProgreso,
+                indiceRutinaActual,
+                rutinaPausada
+              )
+            }
           />
         ) : pantalla === "inicio" ? (
           <Dashboard irAEjercicios={irAEjercicios} irARutinas={irARutinas} onEmpezar={iniciarEntrenamiento} />

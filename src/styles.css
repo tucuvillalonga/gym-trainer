@@ -2579,6 +2579,11 @@ button {
   opacity: 0.78;
 }
 
+.perfil-notificaciones-boton {
+  width: 100%;
+  margin: 12px 0 20px;
+}
+
 .workout-content {
   display: flex;
   flex-direction: column;

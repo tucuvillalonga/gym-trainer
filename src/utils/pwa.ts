@@ -1,10 +1,18 @@
-const REST_NOTIFICATION_ID = "fitapp-rest-timer";
-
 export type NotificationAvailability =
   | "unsupported"
   | "default"
   | "granted"
   | "denied";
+
+export type LocalNotification = {
+  id: string;
+  title: string;
+  body: string;
+  at?: number;
+  tag?: string;
+  requireInteraction?: boolean;
+  data?: Record<string, unknown>;
+};
 
 export function getNotificationAvailability(): NotificationAvailability {
   if (!("Notification" in window) || !("serviceWorker" in navigator)) {
@@ -38,6 +46,8 @@ export async function requestRestNotificationPermission() {
   return permission;
 }
 
+export const requestNotificationPermission = requestRestNotificationPermission;
+
 async function getReadyRegistration() {
   const registered = await registerServiceWorker();
   if (!registered) return null;
@@ -45,29 +55,47 @@ async function getReadyRegistration() {
   return navigator.serviceWorker.ready;
 }
 
-export async function scheduleRestNotification(endsAt: number, body: string) {
+export async function scheduleLocalNotification(notification: LocalNotification) {
   if (getNotificationAvailability() !== "granted") return;
 
   const registration = await getReadyRegistration();
   const worker = registration?.active ?? registration?.waiting ?? registration?.installing;
   worker?.postMessage({
-    type: "SCHEDULE_REST_NOTIFICATION",
-    payload: {
-      id: REST_NOTIFICATION_ID,
-      endsAt,
-      title: "Descanso terminado",
-      body,
-    },
+    type: "SCHEDULE_NOTIFICATION",
+    payload: notification,
   });
 }
 
-export async function cancelRestNotification() {
+export async function showLocalNotification(notification: LocalNotification) {
+  await scheduleLocalNotification({
+    ...notification,
+    at: Date.now(),
+  });
+}
+
+export async function cancelLocalNotification(id: string) {
   if (!("serviceWorker" in navigator)) return;
 
   const registration = await navigator.serviceWorker.getRegistration();
   const worker = registration?.active ?? registration?.waiting ?? registration?.installing;
   worker?.postMessage({
-    type: "CANCEL_REST_NOTIFICATION",
-    payload: { id: REST_NOTIFICATION_ID },
+    type: "CANCEL_NOTIFICATION",
+    payload: { id },
   });
+}
+
+export async function scheduleRestNotification(endsAt: number, body: string) {
+  await scheduleLocalNotification({
+    id: "fitapp-rest-timer",
+    title: "Descanso terminado",
+    body,
+    at: endsAt,
+    tag: "fitapp-rest-timer",
+    requireInteraction: true,
+    data: { intent: "resume-workout" },
+  });
+}
+
+export async function cancelRestNotification() {
+  await cancelLocalNotification("fitapp-rest-timer");
 }

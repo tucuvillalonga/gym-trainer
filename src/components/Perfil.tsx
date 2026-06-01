@@ -7,6 +7,12 @@ import {
 } from "../hooks/usePerfil";
 import { useHistorial } from "../hooks/useHistorial";
 import { inicioDeSemana } from "../utils/fechas";
+import {
+  getNotificationAvailability,
+  requestNotificationPermission,
+  type NotificationAvailability,
+} from "../utils/pwa";
+import { programarRecordatorioEntrenamiento } from "../utils/notificaciones";
 
 const diasLabels: Record<string, string> = {
   domingo: "Domingo",
@@ -38,6 +44,8 @@ function Perfil({ onReiniciarOnboarding }: Props) {
   const { historial, borrarEntrenamiento, limpiarHistorialSemana } = useHistorial();
   const [editando, setEditando] = useState(false);
   const [temporal, setTemporal] = useState<PreferenciasPerfil>(perfil);
+  const [estadoNotificaciones, setEstadoNotificaciones] =
+    useState<NotificationAvailability>(() => getNotificationAvailability());
 
   const entrenamientosSemana = historial.filter((entrenamiento) => {
     const desde = inicioDeSemana().getTime();
@@ -45,13 +53,37 @@ function Perfil({ onReiniciarOnboarding }: Props) {
   });
 
   useEffect(() => {
-    setTemporal(perfil);
+    const timeoutId = window.setTimeout(() => setTemporal(perfil), 0);
+    return () => window.clearTimeout(timeoutId);
   }, [perfil]);
 
   function guardarCambios() {
     setPerfil(temporal);
+    if (temporal.notificacionesActivadas) {
+      programarRecordatorioEntrenamiento(temporal, historial, rutinas);
+    }
     setEditando(false);
     alert("Perfil actualizado correctamente.");
+  }
+
+  async function activarNotificaciones() {
+    const estadoActual = getNotificationAvailability();
+    const permiso =
+      estadoActual === "granted" ? estadoActual : await requestNotificationPermission();
+    setEstadoNotificaciones(permiso);
+
+    if (permiso !== "granted") return;
+
+    const actualizado = {
+      ...perfil,
+      notificacionesActivadas: true,
+      horaNotificacionEntrenamiento:
+        perfil.horaNotificacionEntrenamiento || "19:00",
+    };
+
+    setPerfil(actualizado);
+    setTemporal(actualizado);
+    programarRecordatorioEntrenamiento(actualizado, historial, rutinas);
   }
 
   function cancelar() {
@@ -113,6 +145,13 @@ function Perfil({ onReiniciarOnboarding }: Props) {
     }).format(new Date(fechaISO));
   }
 
+  function formatearDuracion(segundos: number | undefined) {
+    if (!segundos) return "duracion no registrada";
+
+    const minutos = Math.max(1, Math.round(segundos / 60));
+    return `${minutos} min`;
+  }
+
   if (editando) {
     return (
       <section className="pantalla-perfil">
@@ -161,7 +200,13 @@ function Perfil({ onReiniciarOnboarding }: Props) {
               Nivel de experiencia
               <select
                 value={temporal.nivelExperiencia}
-                onChange={(e) => setTemporal({ ...temporal, nivelExperiencia: e.target.value as any })}
+                onChange={(e) =>
+                  setTemporal({
+                    ...temporal,
+                    nivelExperiencia: e.target
+                      .value as PreferenciasPerfil["nivelExperiencia"],
+                  })
+                }
               >
                 <option value="principiante">Principiante</option>
                 <option value="intermedio">Intermedio</option>
@@ -180,6 +225,22 @@ function Perfil({ onReiniciarOnboarding }: Props) {
                 step="15"
                 value={temporal.tiempoEntrenamiento}
                 onChange={(e) => setTemporal({ ...temporal, tiempoEntrenamiento: Number(e.target.value) })}
+              />
+            </label>
+          </div>
+
+          <div className="form-group">
+            <label>
+              Hora para recordatorio de entrenar
+              <input
+                type="time"
+                value={temporal.horaNotificacionEntrenamiento || "19:00"}
+                onChange={(e) =>
+                  setTemporal({
+                    ...temporal,
+                    horaNotificacionEntrenamiento: e.target.value,
+                  })
+                }
               />
             </label>
           </div>
@@ -264,7 +325,49 @@ function Perfil({ onReiniciarOnboarding }: Props) {
           <span className="label">Tiempo de entrenamiento:</span>
           <span className="value">{perfil.tiempoEntrenamiento} minutos</span>
         </div>
+
+        <div className="info-item">
+          <span className="label">Recordatorio diario:</span>
+          <span className="value">
+            {perfil.horaNotificacionEntrenamiento || "19:00"}
+          </span>
+        </div>
+
+        <div className="info-item">
+          <span className="label">Notificaciones:</span>
+          <span className="value">
+            {estadoNotificaciones === "unsupported"
+              ? "No disponibles"
+              : perfil.notificacionesActivadas && estadoNotificaciones === "granted"
+              ? "Activas"
+              : estadoNotificaciones === "denied"
+              ? "Bloqueadas"
+              : "Pendientes"}
+          </span>
+        </div>
       </div>
+
+      {estadoNotificaciones !== "unsupported" && (
+        <button
+          type="button"
+          className={`boton-notificaciones perfil-notificaciones-boton ${
+            perfil.notificacionesActivadas && estadoNotificaciones === "granted"
+              ? "activo"
+              : ""
+          }`}
+          onClick={activarNotificaciones}
+          disabled={
+            (perfil.notificacionesActivadas && estadoNotificaciones === "granted") ||
+            estadoNotificaciones === "denied"
+          }
+        >
+          {perfil.notificacionesActivadas && estadoNotificaciones === "granted"
+            ? "Notificaciones activas"
+            : estadoNotificaciones === "denied"
+            ? "Notificaciones bloqueadas"
+            : "Activar notificaciones"}
+        </button>
+      )}
 
       <div className="plan-semanal-panel panel">
         <h3>Plan semanal</h3>
@@ -309,7 +412,9 @@ function Perfil({ onReiniciarOnboarding }: Props) {
                   <strong>{entrenamiento.nombre}</strong>
                   <span>
                     {formatearFecha(entrenamiento.fechaISO)} ·{" "}
-                    {entrenamiento.ejercicios.length} ejercicios
+                    {formatearDuracion(entrenamiento.duracionSegundos)} ·{" "}
+                    {entrenamiento.ejerciciosCompletados ??
+                      entrenamiento.ejercicios.length} ejercicios
                   </span>
                 </div>
 
